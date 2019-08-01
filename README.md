@@ -18,6 +18,6 @@ npm run build
 npm run build --report
 ```
 ```
-汇盈金融
+汇//ying//金融
 ```
 For a detailed explanation on how things work, check out the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
