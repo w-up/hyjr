@@ -220,28 +220,43 @@ export default {
   watch: {
     updateSymbol(val, oldVal) {
       let that = this;
-      // console.log(val[3]);
-      // console.log(that.infoConts);
-      // console.log(oldVal);
       for (let i = 0; i < that.infoConts.length; i++) {
         if (that.infoConts[i].contract_symbols == val[2]) {
+          if (Number(val[3]).toFixed(that.infoConts[i].future_price) != that.infoConts[i].current_price) { // 比较最新价
+            that.infoConts[i].infoC2ActiveNew = true;
+          } else {
+            that.infoConts[i].infoC2ActiveNew = false;
+          }
+          if (Number(val[6]).toFixed(that.infoConts[i].future_price) != that.infoConts[i].bid1_price) { // 比较买价
+            that.infoConts[i].infoC2ActiveBuy = true;
+          } else {
+            that.infoConts[i].infoC2ActiveBuy = false;
+          }
+          if (Number(val[7]).toFixed(that.infoConts[i].future_price) != that.infoConts[i].ask1_price) {  // 比较卖价
+            that.infoConts[i].infoC2ActiveSell = true;
+          } else {
+            that.infoConts[i].infoC2ActiveSell = false;
+          }
+          if (Number(val[3] - val[14]).toFixed(that.infoConts[i].future_price) != that.infoConts[i].up_num) { // 比较涨跌
+            that.infoConts[i].infoC2ActiveUpNum = true;
+          } else {
+            that.infoConts[i].infoC2ActiveUpNum = false;
+          }
+          if (Number((val[3] - val[14]) / val[14] * 100).toFixed(2) != that.infoConts[i].up_ratio) { // 比较涨幅
+            that.infoConts[i].infoC2ActiveUpRatio = true;
+          } else {
+            that.infoConts[i].infoC2ActiveUpRatio = false;
+          }
+
           that.infoConts[i].current_price = Number(val[3]).toFixed(that.infoConts[i].future_price); // 最新价
-          that.infoConts[i].current_number = Number(val[5]).toFixed(that.infoConts[i].future_price); // 现手
+          that.infoConts[i].current_number = val[5]; // 现手
           that.infoConts[i].bid1_price = Number(val[6]).toFixed(that.infoConts[i].future_price); // 买价
           that.infoConts[i].ask1_price = Number(val[7]).toFixed(that.infoConts[i].future_price); // 卖价
-          if (val[8] != "----") {
-            that.infoConts[i].bid1_volume = Number(val[8]).toFixed(that.infoConts[i].future_price); // 买量
-          } else {
-            that.infoConts[i].bid1_volume = val[8]; // 买量
-          }
-          if (val[9] != "----") {
-            that.infoConts[i].ask1_volume = Number(val[9]).toFixed(that.infoConts[i].future_price); // 卖量
-          } else {
-            that.infoConts[i].ask1_volume = val[9]; // 卖量
-          }
+          that.infoConts[i].bid1_volume = val[8]; // 买量
+          that.infoConts[i].ask1_volume = val[9]; // 卖量
           that.infoConts[i].volume = Number(val[10]).toFixed(that.infoConts[i].future_price); // 成交量
           that.infoConts[i].up_num = Number(val[3] - val[14]).toFixed(that.infoConts[i].future_price); // 涨跌
-          that.infoConts[i].up_ratio = Number((val[3] - val[14]) / val[14]).toFixed(that.infoConts[i].future_price); // 涨幅
+          that.infoConts[i].up_ratio = Number((val[3] - val[14]) / val[14] * 100).toFixed(2); // 涨幅
           if (val[15] != "----") {
             that.infoConts[i].turnover = Number(val[15]).toFixed(that.infoConts[i].future_price); // 持仓量
           } else {
@@ -254,46 +269,39 @@ export default {
           that.infoConts[i].p_close = Number(val[14]).toFixed(that.infoConts[i].future_price); // 昨收
         }
       }
-      if (sessionStorage.getItem("conLists")) {
-        let contractLists = JSON.parse(sessionStorage.getItem("conLists"));
-        for (let i = 0; i < contractLists.length; i++) {
-          if (
-            contractLists[i].current_price != that.infoConts[i].current_price
-          ) {
-            // 比较最新价
-            that.infoConts[i].infoC2ActiveNew = true;
-          } else {
-            that.infoConts[i].infoC2ActiveNew = false;
-          }
-          if (contractLists[i].bid1_price != that.infoConts[i].bid1_price) {
-            // 比较买价
-            that.infoConts[i].infoC2ActiveBuy = true;
-          } else {
-            that.infoConts[i].infoC2ActiveBuy = false;
-          }
-          if (contractLists[i].ask1_price != that.infoConts[i].ask1_price) {
-            // 比较卖价
-            that.infoConts[i].infoC2ActiveSell = true;
-          } else {
-            that.infoConts[i].infoC2ActiveSell = false;
-          }
-          if (contractLists[i].up_num != that.infoConts[i].up_num) {
-            // 比较涨跌
-            that.infoConts[i].infoC2ActiveUpNum = true;
-          } else {
-            that.infoConts[i].infoC2ActiveUpNum = false;
-          }
-          if (contractLists[i].up_ratio != that.infoConts[i].up_ratio) {
-            // 比较涨幅
-            that.infoConts[i].infoC2ActiveUpRatio = true;
-          } else {
-            that.infoConts[i].infoC2ActiveUpRatio = false;
-          }
-        }
-      }
-      if (that.$store.state.isFocus) {
-        sessionStorage.setItem("conLists", JSON.stringify(that.infoConts));
-      }
+      // if (sessionStorage.getItem("conLists")) {
+      //   let contractLists = JSON.parse(sessionStorage.getItem("conLists"));
+      //   for (let i = 0; i < contractLists.length; i++) {
+      //     if (contractLists[i].current_price != that.infoConts[i].current_price) { // 比较最新价
+      //       that.infoConts[i].infoC2ActiveNew = true;
+      //     } else {
+      //       that.infoConts[i].infoC2ActiveNew = false;
+      //     }
+      //     if (contractLists[i].bid1_price != that.infoConts[i].bid1_price) { // 比较买价
+      //       that.infoConts[i].infoC2ActiveBuy = true;
+      //     } else {
+      //       that.infoConts[i].infoC2ActiveBuy = false;
+      //     }
+      //     if (contractLists[i].ask1_price != that.infoConts[i].ask1_price) {  // 比较卖价
+      //       that.infoConts[i].infoC2ActiveSell = true;
+      //     } else {
+      //       that.infoConts[i].infoC2ActiveSell = false;
+      //     }
+      //     if (contractLists[i].up_num != that.infoConts[i].up_num) { // 比较涨跌
+      //       that.infoConts[i].infoC2ActiveUpNum = true;
+      //     } else {
+      //       that.infoConts[i].infoC2ActiveUpNum = false;
+      //     }
+      //     if (contractLists[i].up_ratio != that.infoConts[i].up_ratio) { // 比较涨幅
+      //       that.infoConts[i].infoC2ActiveUpRatio = true;
+      //     } else {
+      //       that.infoConts[i].infoC2ActiveUpRatio = false;
+      //     }
+      //   }
+      // }
+      // if (that.$store.state.isFocus) {
+      //   sessionStorage.setItem("conLists", JSON.stringify(that.infoConts));
+      // }
     }
   },
   created() {
@@ -371,10 +379,7 @@ export default {
             for (let i = 0; i < that.infoConts.length; i++) {
               that.symbolList += that.infoConts[i].contract_short + ",";
             }
-            that.symbolList = that.symbolList.substring(
-              0,
-              that.symbolList.length - 1
-            );
+            that.symbolList = that.symbolList.substring(0, that.symbolList.length - 1);
             // http://dt.cnshuhai.com/stock.php?u=17335495235&symbol=BS&type=stock
             // console.log(that.symbolList);
             that.getStockList(that.symbolList);
@@ -398,6 +403,7 @@ export default {
                 sessionStorage.setItem("infoTopBtnId", id);
               }
             }
+            // console.log(that.infoConts);
           } else if (res.data.code == 0 || res.data.code == -1) {
             that.$message.error(res.data.msg);
           }
@@ -437,9 +443,7 @@ export default {
       let that = this;
       $.ajax({
         url:
-          "http://dt.cnshuhai.com/stock.php?u=17335495235&symbol=" +
-          symbol +
-          "&type=stock",
+          "http://dt.cnshuhai.com/stock.php?u=17335495235&symbol=" + symbol + "&type=stock",
         type: "POST",
         dataType: "json",
         cache: true,
@@ -457,7 +461,7 @@ export default {
                 that.infoConts[i].up_num = (
                   parseFloat(data[j].NewPrice) - parseFloat(data[j].LastClose)
                 ).toFixed(that.infoConts[i].future_price); // 涨跌
-                that.infoConts[i].up_ratio = data[j].PriceChangeRatio; // 涨幅
+                that.infoConts[i].up_ratio = data[j].PriceChangeRatio.toFixed(2); // 涨幅
                 that.infoConts[i].turnover = data[j].Open_Int; // 持仓量
                 that.infoConts[i].dateTime = that.timesToTime(data[j].Date); // 更新时间
                 that.infoConts[i].open_price = data[j].Open; // 开盘
@@ -1033,6 +1037,18 @@ export default {
 .info_c2_table > tbody .activeC2Color {
   color: white;
 }
+
+/* .info_c2_table > tbody .activeC2Color {
+  animation: buling .5s 1 ease;
+}
+@keyframes buling {
+  0% {
+    color: white;
+  }
+  100% {
+    color: white;
+  }
+} */
 
 /* 滚动条整体部分 */
 .info_c2_table_wrap::-webkit-scrollbar {

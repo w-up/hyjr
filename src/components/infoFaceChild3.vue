@@ -109,7 +109,7 @@ export default {
   watch: {
     updateSymbol(val, oldVal) {
       let that = this;
-      console.log(that.$store.state.otherCodeName);
+      // console.log(that.$store.state.otherCodeName);
       if (that.$store.state.otherCodeName == val[2]) {
         that.symbolInfo = { // 最新涨跌中间信息
           name: that.symbolZhName, // 名字
@@ -121,7 +121,7 @@ export default {
           current: Number(val[3]).toFixed(that.$store.state.point), // 最新
           change: Number(val[3] - val[14]).toFixed(that.$store.state.point), // 涨跌
           now_hand: Number(val[5]).toFixed(that.$store.state.point), // 现手
-          change_rate: Number((val[3] - val[14]) / val[14]).toFixed(that.$store.state.point) + "%", // 幅度
+          change_rate: Number((val[3] - val[14]) / val[14] * 100).toFixed(2) + "%", // 幅度
           total_hand: "--", // 总手
           open: Number(val[11]).toFixed(that.$store.state.point), // 开盘
           turnover: val[15] != "----"?Number(val[15]).toFixed(that.$store.state.point):val[15], // 持仓

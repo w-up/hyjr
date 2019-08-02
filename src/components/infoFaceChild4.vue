@@ -179,7 +179,7 @@ export default {
   watch: {
     updateSymbol(val, oldVal) {
       let that = this;
-      console.log(that.$store.state.otherCodeName);
+      // console.log(that.$store.state.otherCodeName);
       if (that.$store.state.otherCodeName == val[2]) {
         that.symbolInfo = { // 最新涨跌中间信息
           name: that.symbolZhName, // 名字
@@ -191,7 +191,7 @@ export default {
           current: Number(val[3]).toFixed(that.$store.state.point), // 最新
           change: Number(val[3] - val[14]).toFixed(that.$store.state.point), // 涨跌
           now_hand: Number(val[5]).toFixed(that.$store.state.point), // 现手
-          change_rate: Number((val[3] - val[14]) / val[14]).toFixed(that.$store.state.point) + "%", // 幅度
+          change_rate: Number((val[3] - val[14]) / val[14] * 100).toFixed(2) + "%", // 幅度
           total_hand: "--", // 总手
           open: Number(val[11]).toFixed(that.$store.state.point), // 开盘
           turnover: val[15] != "----"?Number(val[15]).toFixed(that.$store.state.point):val[15], // 持仓
@@ -205,7 +205,6 @@ export default {
   },
   mounted() {
     let that = this;
-    
     that.infoC4GetKlineFun = function(symbol, time) {
       // 调用K线
       // console.log(codeName, time);
@@ -244,9 +243,6 @@ export default {
     that.infoC4GetKlineFun(that.$store.state.symbolName, that.time); // K线初始化
 
     that.getPointFun(that.$store.state.symbolName);
-    // that.infoC4GetKlineFun(that.$store.state.symbolName, that.time);
-    that.getStockList(that.$store.state.symbolName);
-    that.getStockData(that.$store.state.symbolName); // 交易明细
     // that.infoC4GetTimer1 = setInterval(() => {
     //   that.getStockList(that.$store.state.symbolName);
     // }, 2000);
@@ -277,8 +273,8 @@ export default {
       for (let i = 0; i < that.$store.state.symbolLists.length; i++) {
         if (index == that.$store.state.symbolLists[i].contract_short) {
           that.$store.commit("pointFun", that.$store.state.symbolLists[i].future_price); // 小数位
-          that.getStockList(that.$store.state.symbolName);
-          that.getStockData(that.$store.state.symbolName);
+          that.getStockList(that.$store.state.symbolName); // 行情信息
+          that.getStockData(that.$store.state.symbolName); // 交易明细
         }
       }
       
@@ -342,7 +338,7 @@ export default {
             current: data[0].NewPrice, // 最新
             change: (parseFloat(data[0].NewPrice) - parseFloat(data[0].LastClose)).toFixed(that.$store.state.point), // 涨跌
             now_hand: data[0].Vol2, // 现手
-            change_rate: data[0].PriceChangeRatio, // 幅度
+            change_rate: data[0].PriceChangeRatio.toFixed(2) + "%", // 幅度
             total_hand: data[0].Volume, // 总手
             open: data[0].Open, // 开盘
             turnover: data[0].Open_Int, // 持仓

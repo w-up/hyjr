@@ -215,7 +215,6 @@ export default {
         that.infoC1GetAllContractFun();
       }
     }
-    console.log(that.infoChild1Lists);
   },
   methods: {
     infoC1GetAllContractFun() {
