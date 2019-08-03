@@ -217,10 +217,10 @@ export default {
         type: "POST",
         dataType: "json",
         cache: true,
-        success: function(res) {
-          if (res.length != 0) {
+        success: function(data) {
+          if (data.length != 0) {
             var arr = [];
-            $.each(res, function(index, item) {
+            $.each(data, function(index, item) {
               item.Date = that.hhmmss(item.Date);
               item.NewPrice = parseFloat(item.NewPrice).toFixed(that.$store.state.point);
               arr.push(item);
@@ -239,11 +239,10 @@ export default {
         type: "POST",
         dataType: "json",
         cache: true,
-        success: function(res) {
-          // console.log(res);
+        success: function(data) {
           sessionStorage.setItem("tfC3PointNum", that.$store.state.point); // 小数位
           let arr = [];
-          $.each(res.Data, function(index, item) {
+          $.each(data.Data, function(index, item) {
             let date = new Date(item.Date * 1000);
             let hour = date.getHours(); // 获取小时数(0-23)
             let minute = date.getMinutes(); // 获取分钟数(0-59)

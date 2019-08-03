@@ -493,8 +493,11 @@ export default {
       // 点击空白部分关闭右键
       this.isShowTfC2Menu = false;
     },
-    infoC2RightMenuFun(index) {
+    infoC2RightMenuFun(index, otherName) {
       // 右键弹出菜单
+      if(otherName == "ZCZ9" || otherName == "ZMZ9") {
+        return;
+      }
       this.isShowTfC2Menu = true;
       let totalWidth = this.$refs.infoface2.getBoundingClientRect().right; //总宽度
       if (totalWidth - event.pageX < 150) {
@@ -606,6 +609,9 @@ export default {
     infoContsFun(index, otherName) {
       // 每条合约
       let that = this;
+      if(otherName == "ZCZ9" || otherName == "ZMZ9") {
+        return;
+      }
       for (let i = 0; i < that.infoConts.length; i++) {
         if (that.infoConts[i].contract_short == index) {
           if (that.infoConts[i].current_price == "--") {
@@ -635,6 +641,9 @@ export default {
     dbInfoContsKlineFun(index, otherName) {
       // 双击合约去K线
       let that = this;
+      if(otherName == "ZCZ9" || otherName == "ZMZ9") {
+        return;
+      }
       for (let i = 0; i < that.infoConts.length; i++) {
         if (that.infoConts[i].contract_short == index) {
           if (that.infoConts[i].current_price == "--") {
