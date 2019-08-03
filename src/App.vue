@@ -98,7 +98,7 @@ export default {
           // console.log("断开后没网");
           that.websocketBoolean = false;
         }
-      }, 2000);
+      }, 10000);
     }
   }
 };

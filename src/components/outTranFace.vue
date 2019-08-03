@@ -625,7 +625,7 @@
               <ul class="tf_btn7_btm_alert" v-show="isShowTfBtn7">
                 <li class="tf_btn7_btm_alert_li">
                   <p>---</p>
-                  <p>美元</p>
+                  <p>港币</p>
                 </li>
                 <li class="tf_btn7_btm_alert_li">
                   <span>动态权益</span>
