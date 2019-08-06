@@ -1,6 +1,7 @@
 <template>
   <div class="infofacechild3">
     <div class="info_face_left" ref="infoFaceC3">
+      <!-- <div class="loading" v-show="loading"></div> -->
       <div id="main" @click="infoC3CrossLineFun"></div>
     </div>
     <div class="info_face_right">
@@ -36,7 +37,7 @@
           <p>幅度</p>
           <p
             :class="symbolInfo.change_rate<0?'info_face_right_green':'info_face_right_red'"
-          >{{symbolInfo.change_rate}}</p>
+          >{{symbolInfo.change_rate}}%</p>
         </li>
         <li>
           <p>总手</p>
@@ -68,9 +69,9 @@
           <p>现手</p>
         </li>
         <li v-for="item in detail" :key="item.id">
-          <p>{{item.Date}}</p>
-          <p>{{item.NewPrice}}</p>
-          <p class="info_face_right_orange">{{item.Vol2}}</p>
+          <p>{{item.date}}</p>
+          <p>{{item.price}}</p>
+          <p class="info_face_right_orange">{{item.volume}}</p>
         </li>
       </ul>
     </div>
@@ -85,7 +86,26 @@ export default {
   components: {},
   data() {
     return {
-      symbolInfo: "", // 合约信息
+      loading: true,
+      symbolInfo: { // 合约信息
+        name: this.$store.state.codeName, // 名字
+        code: this.$store.state.otherCodeName, // 代码
+        BP1: "----", // 买价
+        SP1: "----", // 卖价
+        BV1: "----", // 买量
+        SV1: "----", // 卖量
+        current: "----", // 最新
+        change: "----", // 涨跌
+        now_hand: "----", // 现手
+        change_rate: "----", // 幅度
+        total_hand: "----", // 总手
+        open: "----", // 开盘
+        turnover: "----", // 持仓
+        high: "----", // 最高
+        p_clear: "----", // 昨结
+        low: "----", // 最低
+        p_close: "----" //昨收
+      },
       timeKlineFun: "", // 调用分时函数
       infoChangeTimeKlineWHFun: "", // 改变分时宽高的函数
       infoC3GetTimer1: "", // 分时2s
@@ -96,7 +116,6 @@ export default {
       isCrossLine: false, // 分时十字线显隐
       detail: "", // 分时合约详情
       trade_time: "", // 交易时间段
-      symbolZhName: "", // 合约中文名
     };
   },
   //利用计算属性
@@ -112,7 +131,7 @@ export default {
       // console.log(that.$store.state.otherCodeName);
       if (that.$store.state.otherCodeName == val[2]) {
         that.symbolInfo = { // 最新涨跌中间信息
-          name: that.symbolZhName, // 名字
+          name: that.$store.state.codeName, // 中文名字
           code: that.$store.state.symbolName, // 代码
           BP1: Number(val[6]).toFixed(that.$store.state.point), // 买价
           SP1: Number(val[7]).toFixed(that.$store.state.point), // 卖价
@@ -121,7 +140,7 @@ export default {
           current: Number(val[3]).toFixed(that.$store.state.point), // 最新
           change: Number(val[3] - val[14]).toFixed(that.$store.state.point), // 涨跌
           now_hand: Number(val[5]).toFixed(that.$store.state.point), // 现手
-          change_rate: Number((val[3] - val[14]) / val[14] * 100).toFixed(2) + "%", // 幅度
+          change_rate: Number((val[3] - val[14]) / val[14] * 100).toFixed(2), // 幅度
           total_hand: "--", // 总手
           open: Number(val[11]).toFixed(that.$store.state.point), // 开盘
           turnover: val[15] != "----"?Number(val[15]).toFixed(that.$store.state.point):val[15], // 持仓
@@ -154,7 +173,24 @@ export default {
           if (res.data.code == 1) {
             // clearInterval(this.infoC3GetTimer);
             that.trade_time = res.data.data.trading_time; // 交易时间段
-            that.timeTrendFun(that.$store.state.symbolName); // 第三方分时
+            that
+              .$http({ // 获取昨收价
+                url: "/",
+                method: "post",
+                data: {
+                  nozzle: "kline",
+                  symbol: that.$store.state.otherCodeName,
+                  k: "D1",
+                  kcount: 1
+                }
+              })
+              .then(res => {
+                if (res.data.length != 0) {
+                  that.symbolInfo.p_close = res.data[0][2].toFixed(that.$store.state.point); //昨收价
+                }
+              });
+            // that.timeTrendFun(that.$store.state.symbolName); // 第三方分时
+            that.getTrendData(that.$store.state.otherCodeName); // 分时
             // window.myChart.resize(); // 调整分时的宽高
           } else if (res.data.code == 0 || res.data.code == -1) {
             that.$message.error(res.data.msg);
@@ -162,16 +198,15 @@ export default {
         });
     };
     that.timeKlineFun(that.$store.state.symbolName);
-    that.getStockList(that.$store.state.symbolName);
-    that.getStockData(that.$store.state.symbolName);
+    that.getStockDetail(that.$store.state.otherCodeName); // 分笔明细
     // that.infoC3GetTimer1 = setInterval(() => {
     //   that.getStockList(that.$store.state.symbolName);
     // }, 2000);
-    // that.infoC3GetTimer2 = setInterval(() => {
-    //   that.timeTrendFun(that.$store.state.symbolName); // 第三方分时
-    // }, 5000);
+    that.infoC3GetTimer2 = setInterval(() => {
+      that.getTrendData(that.$store.state.otherCodeName); // 分时
+    }, 5000);
     that.infoC3GetTimer3 = setInterval(() => {
-      that.getStockData(that.$store.state.symbolName); // 交易明细
+      that.getStockDetail(that.$store.state.otherCodeName); // 交易明细
     }, 30000);
     $(window).resize(function() {
       window.myChart.resize();
@@ -179,36 +214,65 @@ export default {
     
   },
   methods: {
-    getStockList(symbol) { // 获取第三方行情
+    // getStockList(symbol) { // 获取第三方行情
+    //   let that = this;
+    //   $.ajax({
+    //     url: "http://dt.cnshuhai.com/stock.php?u=17335495235&symbol=" + symbol + "&type=stock",
+    //     type: "POST",
+    //     dataType: "json",
+    //     cache: true,
+    //     success: function(data) {
+    //       that.symbolZhName = data[0].Name;
+    //       that.symbolInfo = { // 最新涨跌中间信息
+    //         name: data[0].Name, // 名字
+    //         code: symbol, // 代码
+    //         BP1: data[0].BP1, // 买价
+    //         SP1: data[0].SP1, // 卖价
+    //         BV1: data[0].BV1, // 买量
+    //         SV1: data[0].SV1, // 卖量
+    //         current: data[0].NewPrice, // 最新
+    //         change: (parseFloat(data[0].NewPrice) - parseFloat(data[0].LastClose)).toFixed(that.$store.state.point), // 涨跌
+    //         now_hand: data[0].Vol2, // 现手
+    //         change_rate: data[0].PriceChangeRatio.toFixed(2) + "%", // 幅度
+    //         total_hand: data[0].Volume, // 总手
+    //         open: data[0].Open, // 开盘
+    //         turnover: data[0].Open_Int, // 持仓
+    //         high: data[0].High, // 最高
+    //         p_clear: data[0].LastClose, // 昨结
+    //         low: data[0].Low, // 最低
+    //         p_close: data[0].Price3, //昨收
+    //       };
+    //     }
+    //   });
+    // },
+    getStockDetail(symbol) {
+      //获取分笔明细
       let that = this;
-      $.ajax({
-        url: "http://dt.cnshuhai.com/stock.php?u=17335495235&symbol=" + symbol + "&type=stock",
-        type: "POST",
-        dataType: "json",
-        cache: true,
-        success: function(data) {
-          that.symbolZhName = data[0].Name;
-          that.symbolInfo = { // 最新涨跌中间信息
-            name: data[0].Name, // 名字
-            code: symbol, // 代码
-            BP1: data[0].BP1, // 买价
-            SP1: data[0].SP1, // 卖价
-            BV1: data[0].BV1, // 买量
-            SV1: data[0].SV1, // 卖量
-            current: data[0].NewPrice, // 最新
-            change: (parseFloat(data[0].NewPrice) - parseFloat(data[0].LastClose)).toFixed(that.$store.state.point), // 涨跌
-            now_hand: data[0].Vol2, // 现手
-            change_rate: data[0].PriceChangeRatio.toFixed(2) + "%", // 幅度
-            total_hand: data[0].Volume, // 总手
-            open: data[0].Open, // 开盘
-            turnover: data[0].Open_Int, // 持仓
-            high: data[0].High, // 最高
-            p_clear: data[0].LastClose, // 昨结
-            low: data[0].Low, // 最低
-            p_close: data[0].Price3, //昨收
-          };
-        }
-      });
+      that
+        .$http({
+          url: "/",
+          method: "post",
+          data: {
+            nozzle: "kline",
+            symbol: symbol,
+            k: "R1",
+            kcount: 100
+          }
+        })
+        .then(res => {
+          that.detail = [];
+          if (res.data.length != 0) {
+            for (let i = 0; i < res.data.length; i++) {
+              if (res.data[i][5] != 0) {
+                that.detail.unshift({
+                  date: res.data[i][0].slice(6, 8) + ":" + res.data[i][0].slice(8, 10) + ":" + res.data[i][0].slice(10, 12),
+                  price: res.data[i][2].toFixed(that.$store.state.point),
+                  volume: res.data[i][5]
+                });
+              }
+            }
+          }
+        });
     },
     getStockData(symbol) {//请求合约信息
       let that = this;
@@ -232,6 +296,47 @@ export default {
         }
       });
     },
+    getTrendData(symbol) { // 获取分时数据
+      let that = this;
+      that
+        .$http({
+          url: "/",
+          method: "post",
+          data: {
+            nozzle: "kline",
+            symbol: symbol,
+            k: "M1",
+            kcount: 1000
+          }
+        })
+        .then(res => {
+          if (res.data.length != 0) {
+            //arr: ["0601 25388 894", "0602 25315 1138", "0603 25269 720"] // 时间 价格 成交量
+            sessionStorage.setItem("tfC3PointNum", that.$store.state.point); // 小数位
+            let arr = [];
+            let timeData = [];
+            for (let i = 0; i < res.data.length; i++) {
+              var time = "20" + res.data[i][0].slice(0, 2) + "/" + res.data[i][0].slice(2, 4) + "/" + res.data[i][0].slice(4, 6) + " " + res.data[i][0].slice(6, 8) + ":" + res.data[i][0].slice(8, 10) + ":" + "00";
+              var beginTime = that.trade_time[0].substring(0, 5) + ":" + "00";
+              var nowYear = new Date().getFullYear();
+              var nowMonth = new Date().getMonth()+1;
+              var nowDay = new Date().getDate();
+              var begin = nowYear + "/" + nowMonth + "/" + nowDay + " " + beginTime;
+              // console.log(begin);
+              if(Date.parse(new Date(time)) >= Date.parse(new Date(begin))) { //只要当天交易时间的数据
+                let arrStr = res.data[i][0].slice(6, 8) + res.data[i][0].slice(8, 10) + " " + res.data[i][2] + " " + res.data[i][5];
+                arr.push(arrStr);
+              }
+            }
+            // console.log(arr);
+            var lastIndex = that.trade_time.length - 1;
+            var endTime = that.trade_time[lastIndex].substring(6, 12); //最后一条时间
+            var everyTime = that.getTimes(that.trade_time); // 交易时间段
+            console.log(that.symbolInfo.p_close);
+            makeTimeLine2(arr, that.symbolInfo, everyTime, endTime);
+          }
+        });
+    },
     timeTrendFun(symbol) { // 获取分时数据
       let that = this;
       $.ajax({
@@ -242,6 +347,7 @@ export default {
         success: function(data) {
           sessionStorage.setItem("tfC3PointNum", that.$store.state.point); // 小数位
           let arr = [];
+          console.log(data.Data);
           $.each(data.Data, function(index, item) {
             let date = new Date(item.Date * 1000);
             let hour = date.getHours(); // 获取小时数(0-23)
@@ -261,6 +367,10 @@ export default {
             var lastIndex = that.trade_time.length - 1;
             var endTime = that.trade_time[lastIndex].substring(6, 12); //最后一条时间
             var everyTime = that.getTimes(that.trade_time); // 交易时间段
+            console.log(arr);
+            console.log(that.symbolInfo);
+            console.log(everyTime);
+            console.log(endTime);
             makeTimeLine2(arr, that.symbolInfo, everyTime, endTime);
           }
         }

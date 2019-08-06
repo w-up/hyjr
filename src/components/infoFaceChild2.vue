@@ -391,6 +391,10 @@ export default {
                 "symbolNameFun",
                 that.infoConts[0].contract_short
               ); // 默认的合约名字
+              that.$store.commit(
+                "otherCodeNameFun",
+                that.infoConts[0].contract_symbols
+              ); // 新添加合约名字
               that.infoContsActiveName = that.infoConts[0].contract_short; // 第一次进入默认选中的合约
             }
             if (that.infoC2GetCurTimerBoole) {
@@ -441,10 +445,11 @@ export default {
     getStockList(symbol) {
       // 获取第三方行情
       let that = this;
+      http://47.110.12.144:8181/?symbol=IFML&k=M1&kcount=1000
       $.ajax({
         url:
           "http://dt.cnshuhai.com/stock.php?u=17335495235&symbol=" + symbol + "&type=stock",
-        type: "POST",
+        type: "GET",
         dataType: "json",
         cache: true,
         success: function(data) {
@@ -482,6 +487,10 @@ export default {
               "symbolNameFun",
               that.infoConts[0].contract_short
             ); // 默认的合约名字
+            that.$store.commit(
+              "otherCodeNameFun",
+              that.infoConts[0].contract_symbols
+            ); // 新添加合约名字
             that.infoContsActiveName = that.infoConts[0].contract_short; // 第一次进入默认选中的合约
           }
           that.$store.commit("symbolListsFun", that.infoConts);
@@ -495,9 +504,6 @@ export default {
     },
     infoC2RightMenuFun(index, otherName) {
       // 右键弹出菜单
-      if(otherName == "ZCZ9" || otherName == "ZMZ9") {
-        return;
-      }
       this.isShowTfC2Menu = true;
       let totalWidth = this.$refs.infoface2.getBoundingClientRect().right; //总宽度
       if (totalWidth - event.pageX < 150) {
@@ -609,9 +615,6 @@ export default {
     infoContsFun(index, otherName) {
       // 每条合约
       let that = this;
-      if(otherName == "ZCZ9" || otherName == "ZMZ9") {
-        return;
-      }
       for (let i = 0; i < that.infoConts.length; i++) {
         if (that.infoConts[i].contract_short == index) {
           if (that.infoConts[i].current_price == "--") {
@@ -641,9 +644,6 @@ export default {
     dbInfoContsKlineFun(index, otherName) {
       // 双击合约去K线
       let that = this;
-      if(otherName == "ZCZ9" || otherName == "ZMZ9") {
-        return;
-      }
       for (let i = 0; i < that.infoConts.length; i++) {
         if (that.infoConts[i].contract_short == index) {
           if (that.infoConts[i].current_price == "--") {
