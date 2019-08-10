@@ -8,12 +8,6 @@
 import "./assets/css/common.css";
 export default {
   name: "App",
-  mounted: function() {
-    window.document.oncontextmenu = function() {
-      //屏蔽右键事件
-      return false;
-    };
-  },
   created() {
     // 此举是防止浏览器刷新造成vuex数据丢失
     //在页面加载时读取sessionStorage里的状态信息
@@ -30,7 +24,12 @@ export default {
     window.addEventListener("beforeunload", () => {
       sessionStorage.setItem("store", JSON.stringify(this.$store.state));
     });
-
+  },
+  mounted: function() {
+    window.document.oncontextmenu = function() {
+      //屏蔽右键事件
+      return false;
+    };
     this.initWebSocket(); //开启推送
   },
   methods: {
