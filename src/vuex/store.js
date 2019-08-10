@@ -26,15 +26,42 @@ const state = { //
   isSysSet: false, // 设置
   isSysSetDbInput3: false, // 设置 双击委托撤单
   setNumLists: [ // 设置 默认手数
-    { id: 1, name: 1 },
-    { id: 2, name: 2 },
-    { id: 3, name: 3 },
-    { id: 4, name: 4 },
-    { id: 5, name: 5 },
-    { id: 6, name: 6 },
-    { id: 7, name: 10 },
-    { id: 8, name: 50 },
-    { id: 9, name: 100 }
+    {
+      id: 1,
+      name: 1
+    },
+    {
+      id: 2,
+      name: 2
+    },
+    {
+      id: 3,
+      name: 3
+    },
+    {
+      id: 4,
+      name: 4
+    },
+    {
+      id: 5,
+      name: 5
+    },
+    {
+      id: 6,
+      name: 6
+    },
+    {
+      id: 7,
+      name: 10
+    },
+    {
+      id: 8,
+      name: 50
+    },
+    {
+      id: 9,
+      name: 100
+    }
   ],
   setOverLists: "", // 设置 超价设置
 
@@ -47,6 +74,7 @@ const state = { //
   symbolLists: "", // 合约列表
   symbolName: "", // 英文合约名字
   otherCodeName: "", //新加的合约名字
+  allSymbolList: [], // 存储推送的所有合约
   point: "", // 小数位
   tokenStr: "", // 登录token
   userNumber: "", // 用户账号
@@ -78,10 +106,10 @@ const mutations = {
     state.symbolName = index;
     // console.log(JSON.parse(JSON.stringify(index)));
   },
-  changeCodeNameFun(state, name) {// 中文合约名字
+  changeCodeNameFun(state, name) { // 中文合约名字
     state.codeName = name;
   },
-  otherCodeNameFun(state, name) {// 新加的合约名字
+  otherCodeNameFun(state, name) { // 新加的合约名字
     state.otherCodeName = name;
   },
   pointFun(state, index) {
@@ -239,7 +267,20 @@ const mutations = {
   },
   updateSymbolFun(state, index) {
     state.updateSymbol = index;
-  },
+    if (state.allSymbolList.length != 0) {
+      let item = state.allSymbolList.findIndex(item => {
+        return item[2] === index[2];
+      });
+      if (item == -1) {
+        state.allSymbolList.push(index);
+      } else {
+        state.allSymbolList[item] = index;
+      }
+    } else {
+      state.allSymbolList.push(index);
+    }
+    localStorage.setItem("allSymbolList", JSON.stringify(state.allSymbolList));
+  }
 }
 
 export default new Vuex.Store({ //暴露Store对象

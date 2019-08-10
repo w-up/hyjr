@@ -2107,6 +2107,46 @@ export default {
   created() {
     this.initWebSocket(); // 开启推送
   },
+  //利用计算属性
+  computed: {
+    updateSymbol() {
+      return this.$store.state.updateSymbol;
+    }
+  },
+  //监听执行
+  watch: {
+    updateSymbol(val, oldVal) {
+      let that = this;
+      // console.log(that.$store.state.otherCodeName);
+      if (that.$store.state.otherCodeName == val[2]) {
+        // tfOrderOneBuyPrice: "", // 买的按钮的价格
+        // tfOrderOneSellPrice: "", // 卖的按钮的价格
+        // name: that.$store.state.codeName, // 中文名字
+        // code: that.$store.state.symbolName, // 代码
+        if (that.$store.state.isSubAdd == true) { // 价格加减后不再赋值
+          that.tfOrderOneBuyPrice = Number(val[6]).toFixed(that.$store.state.point); // 买价
+          that.tfOrderOneSellPrice = Number(val[7]).toFixed(that.$store.state.point); // 卖价
+          that.tfOrderPriceLists[0].price = Number(val[3]).toFixed(that.$store.state.point); // 最新价
+          that.tfOrderPriceLists[1].price = Number(val[3]).toFixed(that.$store.state.point); // 也走最新价
+          // this.tfOrderPriceIpt = this.tfOrderPriceLists[1].name; //三键 六键 传统下单价格默认对手价
+          // this.tfOrderPriceType = this.tfOrderPriceLists[1].name; //三键 六键 传统下单价格类型默认对手价
+        }
+        // BV1: val[8] != "----"?Number(val[8]).toFixed(that.$store.state.point):val[8], // 买量
+        // SV1: val[9] != "----"?Number(val[9]).toFixed(that.$store.state.point):val[9], // 卖量
+        // current: Number(val[3]).toFixed(that.$store.state.point), // 最新
+        // change: Number(val[3] - val[14]).toFixed(that.$store.state.point), // 涨跌
+        // now_hand: Number(val[5]).toFixed(that.$store.state.point), // 现手
+        // change_rate: Number((val[3] - val[14]) / val[14] * 100).toFixed(2), // 幅度
+        // total_hand: "--", // 总手
+        // open: Number(val[11]).toFixed(that.$store.state.point), // 开盘
+        // turnover: val[15] != "----"?Number(val[15]).toFixed(that.$store.state.point):val[15], // 持仓
+        // high: Number(val[12]).toFixed(that.$store.state.point), // 最高
+        // p_clear: val[16] != "----"?Number(val[16]).toFixed(that.$store.state.point):val[16], // 昨结
+        // low: Number(val[13]).toFixed(that.$store.state.point), // 最低
+        // p_close: Number(val[14]).toFixed(that.$store.state.point), //昨收
+      }
+    }
+  },
   mounted: function() {
     let that = this;
     let userToken = that.$store.state.tokenStr; // 获取token
@@ -2376,13 +2416,28 @@ export default {
             // 持仓信息
             that.depotTopContLists = res.data.data.depot_log; // 上面的持仓内容
             // 三键六键信息
-            if (that.$store.state.isSubAdd == true) { // 价格加减后不再赋值
-              that.tfOrderPriceLists[0].price = res.data.data.option_contract.current_info.current_price; // 最新价
-              that.tfOrderPriceLists[1].price = res.data.data.option_contract.current_info.current_price; // 也走最新价
-              that.tfOrderOneBuyPrice = res.data.data.option_contract.five_gear.ask[4].price; // 买入的按钮显示价
-              that.tfOrderOneSellPrice = res.data.data.option_contract.five_gear.bid[0].price; // 卖出的按钮显示价
-              this.tfOrderPriceIpt = this.tfOrderPriceLists[1].name; //三键 六键 传统下单价格默认对手价
-              this.tfOrderPriceType = this.tfOrderPriceLists[1].name; //三键 六键 传统下单价格类型默认对手价
+            // if (that.$store.state.isSubAdd == true) { // 价格加减后不再赋值
+            //   that.tfOrderPriceLists[0].price = res.data.data.option_contract.current_info.current_price; // 最新价
+            //   that.tfOrderPriceLists[1].price = res.data.data.option_contract.current_info.current_price; // 也走最新价
+            //   that.tfOrderOneBuyPrice = res.data.data.option_contract.five_gear.ask[4].price; // 买入的按钮显示价
+            //   that.tfOrderOneSellPrice = res.data.data.option_contract.five_gear.bid[0].price; // 卖出的按钮显示价
+            //   this.tfOrderPriceIpt = this.tfOrderPriceLists[1].name; //三键 六键 传统下单价格默认对手价
+            //   this.tfOrderPriceType = this.tfOrderPriceLists[1].name; //三键 六键 传统下单价格类型默认对手价
+            // }
+            if (localStorage.getItem("allSymbolList")) {
+              var allSymbolList = JSON.parse(localStorage.getItem("allSymbolList"));
+              for (let i = 0; i < allSymbolList.length; i++) {
+                if (that.$store.state.otherCodeName == allSymbolList[i][2]) {
+                  if (that.$store.state.isSubAdd == true) { // 价格加减后不再赋值
+                    that.tfOrderOneBuyPrice = Number(allSymbolList[i][6]).toFixed(that.$store.state.point); // 买价
+                    that.tfOrderOneSellPrice = Number(allSymbolList[i][7]).toFixed(that.$store.state.point); // 卖价
+                    that.tfOrderPriceLists[0].price = Number(allSymbolList[i][3]).toFixed(that.$store.state.point); // 最新价
+                    that.tfOrderPriceLists[1].price = Number(allSymbolList[i][3]).toFixed(that.$store.state.point); // 也走最新价
+                    that.tfOrderPriceIpt = that.tfOrderPriceLists[1].name; //三键 六键 传统下单价格默认对手价
+                    that.tfOrderPriceType = that.tfOrderPriceLists[1].name; //三键 六键 传统下单价格类型默认对手价
+                  }
+                }
+              }
             }
             that.tfOrderDepot = res.data.data.option_contract.depot; // 持仓
             that.tfOrderSubAddPrice = res.data.data.option_contract.current_info.wave_spot; // 加减数
@@ -2429,13 +2484,27 @@ export default {
             // 委托信息
             that.entrustBtmContLists = res.data.data.day_entrust_log; // 委托内容
             // 三键六键信息
-            if (that.$store.state.isSubAdd == true) { // 价格加减后不再赋值
-              that.tfOrderPriceLists[0].price = res.data.data.option_contract.current_info.current_price; // 最新价
-              that.tfOrderPriceLists[1].price = res.data.data.option_contract.current_info.current_price; // 也走最新价
-              that.tfOrderOneBuyPrice = res.data.data.option_contract.five_gear.ask[4].price; // 买入的按钮显示价
-              that.tfOrderOneSellPrice = res.data.data.option_contract.five_gear.bid[0].price; // 卖出的按钮显示价
-              this.tfOrderPriceIpt = this.tfOrderPriceLists[1].name; //三键 六键 传统下单价格默认对手价
-              this.tfOrderPriceType = this.tfOrderPriceLists[1].name; //三键 六键 传统下单价格类型默认对手价
+            // if (that.$store.state.isSubAdd == true) { // 价格加减后不再赋值
+            //   that.tfOrderPriceLists[0].price = res.data.data.option_contract.current_info.current_price; // 最新价
+            //   that.tfOrderPriceLists[1].price = res.data.data.option_contract.current_info.current_price; // 也走最新价
+            //   that.tfOrderOneBuyPrice = res.data.data.option_contract.five_gear.ask[4].price; // 买入的按钮显示价
+            //   that.tfOrderOneSellPrice = res.data.data.option_contract.five_gear.bid[0].price; // 卖出的按钮显示价
+            //   this.tfOrderPriceIpt = this.tfOrderPriceLists[1].name; //三键 六键 传统下单价格默认对手价
+            //   this.tfOrderPriceType = this.tfOrderPriceLists[1].name; //三键 六键 传统下单价格类型默认对手价
+            // }
+            var allSymbolList = JSON.parse(localStorage.getItem("allSymbolList"));
+            console.log(that.$store.state.otherCodeName);
+            for (let i = 0; i < allSymbolList.length; i++) {
+              if (that.$store.state.otherCodeName == allSymbolList[i][2]) {
+                if (that.$store.state.isSubAdd == true) { // 价格加减后不再赋值
+                  that.tfOrderOneBuyPrice = Number(allSymbolList[i][6]).toFixed(that.$store.state.point); // 买价
+                  that.tfOrderOneSellPrice = Number(allSymbolList[i][7]).toFixed(that.$store.state.point); // 卖价
+                  that.tfOrderPriceLists[0].price = Number(allSymbolList[i][3]).toFixed(that.$store.state.point); // 最新价
+                  that.tfOrderPriceLists[1].price = Number(allSymbolList[i][3]).toFixed(that.$store.state.point); // 也走最新价
+                  that.tfOrderPriceIpt = that.tfOrderPriceLists[1].name; //三键 六键 传统下单价格默认对手价
+                  that.tfOrderPriceType = that.tfOrderPriceLists[1].name; //三键 六键 传统下单价格类型默认对手价
+                }
+              }
             }
             that.tfOrderDepot = res.data.data.option_contract.depot; // 持仓
             that.tfOrderSubAddPrice = res.data.data.option_contract.current_info.wave_spot; // 加减数
@@ -2480,14 +2549,27 @@ export default {
             // 成交信息
             that.tranContLists = res.data.data.day_deal_log; // 成交内容
             // 三键六键信息
-            if (that.$store.state.isSubAdd == true) { // 价格加减后不再赋值
-              that.tfOrderPriceLists[0].price = res.data.data.option_contract.current_info.current_price; // 最新价
-              that.tfOrderPriceLists[1].price = res.data.data.option_contract.current_info.current_price; // 也走最新价
-              that.tfOrderOneBuyPrice = res.data.data.option_contract.five_gear.ask[4].price; // 买入的按钮显示价
-              that.tfOrderOneSellPrice = res.data.data.option_contract.five_gear.bid[0].price; // 卖出的按钮显示价
-              this.tfOrderPriceIpt = this.tfOrderPriceLists[1].name; //三键 六键 传统下单价格默认对手价
-              this.tfOrderPriceType = this.tfOrderPriceLists[1].name; //三键 六键 传统下单价格类型默认对手价
+            var allSymbolList = JSON.parse(localStorage.getItem("allSymbolList"));
+            console.log(that.$store.state.otherCodeName);
+            for (let i = 0; i < allSymbolList.length; i++) {
+              if (that.$store.state.otherCodeName == allSymbolList[i][2]) {
+                if (that.$store.state.isSubAdd == true) { // 价格加减后不再赋值
+                  that.tfOrderOneBuyPrice = Number(allSymbolList[i][6]).toFixed(that.$store.state.point); // 买价
+                  that.tfOrderOneSellPrice = Number(allSymbolList[i][7]).toFixed(that.$store.state.point); // 卖价
+                  that.tfOrderPriceLists[0].price = Number(allSymbolList[i][3]).toFixed(that.$store.state.point); // 最新价
+                  that.tfOrderPriceLists[1].price = Number(allSymbolList[i][3]).toFixed(that.$store.state.point); // 也走最新价
+                  that.tfOrderPriceIpt = that.tfOrderPriceLists[1].name; //三键 六键 传统下单价格默认对手价
+                  that.tfOrderPriceType = that.tfOrderPriceLists[1].name; //三键 六键 传统下单价格类型默认对手价
+                }
+              }
             }
+            // if (that.$store.state.isSubAdd == true) { // 价格加减后不再赋值
+            //   that.tfOrderPriceLists[0].price = res.data.data.option_contract.current_info.current_price; // 最新价
+            //   that.tfOrderPriceLists[1].price = res.data.data.option_contract.current_info.current_price; // 也走最新价
+            //   that.tfOrderOneBuyPrice = res.data.data.option_contract.five_gear.ask[4].price; // 买入的按钮显示价
+            //   that.tfOrderOneSellPrice = res.data.data.option_contract.five_gear.bid[0].price; // 卖出的按钮显示价
+              
+            // }
             that.tfOrderDepot = res.data.data.option_contract.depot; // 持仓
             that.tfOrderSubAddPrice = res.data.data.option_contract.current_info.wave_spot; // 加减数
             let num;
@@ -2521,9 +2603,26 @@ export default {
     // that.tfAllTimer = setInterval(() => {
     //   that.getStockList(that.$store.state.codeName); // 获取选中的合约
     // }, 3000);
+    that.initInfoFun(); // 信息初始化
   },
   directives: { clickoutside }, //自定义指令点击空白右键消失
   methods: {
+    initInfoFun() { // 信息初始化
+      // let that = this;
+      // var allSymbolList = JSON.parse(localStorage.getItem("allSymbolList"));
+      // for (let i = 0; i < allSymbolList.length; i++) {
+      //   if (that.$store.state.otherCodeName == allSymbolList[i][2]) {
+      //     if (that.$store.state.isSubAdd == true) { // 价格加减后不再赋值
+      //       that.tfOrderOneBuyPrice = Number(allSymbolList[i][6]).toFixed(that.$store.state.point); // 买价
+      //       that.tfOrderOneSellPrice = Number(allSymbolList[i][7]).toFixed(that.$store.state.point); // 卖价
+      //       that.tfOrderPriceLists[0].price = Number(allSymbolList[i][3]).toFixed(that.$store.state.point); // 最新价
+      //       that.tfOrderPriceLists[1].price = Number(allSymbolList[i][3]).toFixed(that.$store.state.point); // 也走最新价
+      //       // this.tfOrderPriceIpt = this.tfOrderPriceLists[1].name; //三键 六键 传统下单价格默认对手价
+      //       // this.tfOrderPriceType = this.tfOrderPriceLists[1].name; //三键 六键 传统下单价格类型默认对手价
+      //     }
+      //   }
+      // }
+    },
     getStockList(symbol) { // 获取第三方行情
       let that = this;
       $.ajax({
@@ -2648,14 +2747,14 @@ export default {
           that.$store.commit("userNameFun", redata.data.account.name); // 账户名
           that.tfBtn7UserName = redata.data.account.number; // 默认查询账户信息
           // 三键六键信息
-          if (that.$store.state.isSubAdd == true) { // 价格加减后不再赋值
-            that.tfOrderPriceLists[0].price = redata.data.option_contract.current_info.current_price; // 最新价
-            that.tfOrderPriceLists[1].price = redata.data.option_contract.current_info.current_price; // 也走最新价
-            that.tfOrderOneBuyPrice = redata.data.option_contract.five_gear.ask[4].price; // 买入的按钮显示价
-            that.tfOrderOneSellPrice = redata.data.option_contract.five_gear.bid[0].price; // 卖出的按钮显示价
-            // this.tfOrderPriceIpt = this.tfOrderPriceLists[1].name; //三键 六键 传统下单价格默认对手价
-            // this.tfOrderPriceType = this.tfOrderPriceLists[1].name; //三键 六键 传统下单价格类型默认对手价
-          }
+          // if (that.$store.state.isSubAdd == true) { // 价格加减后不再赋值
+          //   that.tfOrderPriceLists[0].price = redata.data.option_contract.current_info.current_price; // 最新价
+          //   that.tfOrderPriceLists[1].price = redata.data.option_contract.current_info.current_price; // 也走最新价
+          //   that.tfOrderOneBuyPrice = redata.data.option_contract.five_gear.ask[4].price; // 买入的按钮显示价
+          //   that.tfOrderOneSellPrice = redata.data.option_contract.five_gear.bid[0].price; // 卖出的按钮显示价
+          //   // this.tfOrderPriceIpt = this.tfOrderPriceLists[1].name; //三键 六键 传统下单价格默认对手价
+          //   // this.tfOrderPriceType = this.tfOrderPriceLists[1].name; //三键 六键 传统下单价格类型默认对手价
+          // }
           that.tfOrderDepot = redata.data.option_contract.depot; // 持仓
           that.tfOrderSubAddPrice = redata.data.option_contract.current_info.wave_spot; // 加减数
           let num;
@@ -4375,28 +4474,31 @@ export default {
         clearInterval(this.tfAllTimer); // 清除计时
         this.getOrderAllDepotInfo(index); // 三合一持仓调用
       }
-      // console.log(index);
       for (let i = 0; i < this.tfBtmThreeOrderOptions.length; i++) {
         if (this.tfBtmThreeOrderOptions[i].contract_name == index) {
-          this.$store.commit("symbolNameFun", this.tfBtmThreeOrderOptions[i].contract_short);
+          this.$store.commit("changeCodeNameFun", index); // 中文合约名字
+          this.$store.commit("symbolNameFun", this.tfBtmThreeOrderOptions[i].contract_short); // 英文合约名字
+          this.$store.commit("otherCodeNameFun", this.tfBtmThreeOrderOptions[i].contract_symbols); // 新加的合约名字
+          if (this.$route.path == "/wrap/infoFace/infoFaceChild2") {
+            this.$parent.$refs.route.$refs.infoRoute.infoC2ChangeCodeNameFun(); // 调用C2中改变选中的合约名
+          }
+          if (this.$route.path == "/wrap/infoFace/infoFaceChild3") {
+            this.$parent.$refs.route.$refs.infoRoute.timeKlineFun(this.$store.state.symbolName); // 调用C3中改变选中的合约名
+          }
+          if (this.$route.path == "/wrap/infoFace/infoFaceChild4") {
+            this.$parent.$refs.route.$refs.infoRoute.getPointFun(this.$store.state.symbolName);
+            this.$parent.$refs.route.$refs.infoRoute.infoC4GetKlineFun(this.$store.state.otherCodeName, "D1"); // 获取K线数据
+            this.$parent.$refs.route.$refs.infoRoute.getStockDetail(this.$store.state.otherCodeName); // 分笔明细
+            this.$parent.$refs.route.$refs.infoRoute.initInfoFun(); // 合约信息初始化
+            // this.$parent.$refs.route.$refs.infoRoute.getStockList(this.$store.state.symbolName); // 获取第三方行情
+            // this.$parent.$refs.route.$refs.infoRoute.getStockData(this.$store.state.symbolName); // 获取分笔明细
+          }
         }
       }
       
       this.$store.commit("isSubAddFun", true); // 列表切换后重新获取实时价格
-      this.$store.commit("changeCodeNameFun", index); // 存下select选中合约的名字
       this.websocketonopen(); // 切换合约后推送重新请求
-      if (this.$route.path == "/wrap/infoFace/infoFaceChild2") {
-        this.$parent.$refs.route.$refs.infoRoute.infoC2ChangeCodeNameFun(); // 调用C2中改变选中的合约名
-      }
-      if (this.$route.path == "/wrap/infoFace/infoFaceChild3") {
-        this.$parent.$refs.route.$refs.infoRoute.timeKlineFun(index); // 调用C3中改变选中的合约名
-      }
-      if (this.$route.path == "/wrap/infoFace/infoFaceChild4") {
-        this.$parent.$refs.route.$refs.infoRoute.getPointFun(this.$store.state.symbolName);
-        this.$parent.$refs.route.$refs.infoRoute.infoC4GetKlineFun(this.$store.state.symbolName, "day"); // 获取K线数据
-        this.$parent.$refs.route.$refs.infoRoute.getStockList(this.$store.state.symbolName); // 获取第三方行情
-        this.$parent.$refs.route.$refs.infoRoute.getStockData(this.$store.state.symbolName); // 获取分笔明细
-      }
+      
     },
     tfOrderPriceBtnsFun(index) {
       // 更多里面的止损开仓右侧按钮

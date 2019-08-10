@@ -18,6 +18,9 @@ Vue.prototype.$echarts = echarts;
 import 'jquery-ui/ui/widgets/draggable'; //拖动弹窗
 import "jquery-ui/ui/widgets/resizable"; //拖动缩放
 
+// import axiosPlugin from "./request/axios"; 
+// Vue.use(axiosPlugin);
+
 import axios from "axios";
 import Qs from "qs";
 axios.defaults.transformRequest = [function(data) {

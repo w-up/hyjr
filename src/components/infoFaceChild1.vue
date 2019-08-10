@@ -148,8 +148,6 @@ export default {
         { id: 8, name: "此处外移除所有自选" }
       ],
       // infoC1GetAllContractFun: "", // 批量请求合约信息
-      infoC1GetTimer: "", // 计时器
-      infoC1GetTimerBoole: true // 计时器暂停
     };
   },
   //利用计算属性
@@ -200,20 +198,11 @@ export default {
   directives: { clickoutside }, //自定义指令点击空白右键消失
   mounted: function() {
     let that = this;
-    clearInterval(this.infoC1GetTimer); //清除计时器
     if (localStorage.getItem("infoFaceC1Lists")) {
       // 先从缓存取出
       that.infoChild1Lists = JSON.parse(
         localStorage.getItem("infoFaceC1Lists")
       );
-    }
-    if (that.infoC1GetTimerBoole) {
-      if (that.infoChild1Lists.length == 0) {
-        // 初始化调用
-        clearInterval(this.infoC1GetTimer);
-      } else {
-        that.infoC1GetAllContractFun();
-      }
     }
   },
   methods: {
@@ -232,108 +221,93 @@ export default {
       }
       allCodeName = allCodeName.substring(0, allCodeName.length - 1);
       // console.log(allCodeName);
-      $.ajax({
-        url:
-          "http://dt.cnshuhai.com/stock.php?u=17335495235&symbol=" +
-          allCodeName +
-          "&type=stock",
-        type: "POST",
-        dataType: "json",
-        cache: true,
-        success: function(data) {
-          clearInterval(this.infoC1GetTimer);
-          let infoC1ArrSort = window.localStorage.getItem("infoC1ArrSort");
-          if (allCodeName.length == 2) {
-            // 删完后按拖拽处理
-            infoC1ArrSort = window.localStorage.setItem(
-              "infoC1ArrSort",
-              "dargSort"
-            );
-          }
-          if (infoC1ArrSort) {
-            // console.log(JSON.parse(JSON.stringify(that.infoChild1Lists)));
-            // console.log(data);
-            for (let i = 0; i < that.infoChild1Lists.length; i++) {
-              for (let j = 0; j < data.length; j++) {
-                if (that.infoChild1Lists[i].contract_short == data[j].Symbol) {
-                  that.infoChild1Lists[i].ask1_price = data[j].SP1; // 卖价
-                  that.infoChild1Lists[i].ask1_volume = data[j].SV1; // 卖量
-                  that.infoChild1Lists[i].current_price = data[j].NewPrice; // 最新价
-                  that.infoChild1Lists[i].current_number = data[j].Vol2; // 现手
-                  that.infoChild1Lists[i].bid1_price = data[j].BP1; // 买价
-                  that.infoChild1Lists[i].bid1_volume = data[j].BV1; // 买量
-                  that.infoChild1Lists[i].up_ratio = data[j].PriceChangeRatio; // 涨幅
-                }
-              }
-            }
-
-            if (infoC1ArrSort == "upRatioSort") {
-              // 按涨幅升序排序
-              function sortBy(field) {
-                //数字类型的比较
-                return function(a, b) {
-                  return a[field] - b[field];
-                };
-              }
-              that.infoChild1Lists.sort(sortBy("up_ratio"));
-              // console.log("upRatioSort");
-              // console.log(that.infoChild1Lists);
-            } else if (infoC1ArrSort == "downRatioSort") {
-              // 按涨幅降序排序
-              function sortBy(field) {
-                return function(a, b) {
-                  return b[field] - a[field];
-                };
-              }
-              that.infoChild1Lists.sort(sortBy("up_ratio"));
-              // console.log("downRatioSort");
-              // console.log(that.infoChild1Lists);
-            } else if (infoC1ArrSort == "codeNameSort") {
-              // 按品种排序
-              function compare(propertyName) {
-                //字符串类型的比较
-                return function(object1, object2) {
-                  var value1 = object1[propertyName];
-                  var value2 = object2[propertyName];
-                  if (value1 < value2) {
-                    return 1;
-                  } else if (value1 > value2) {
-                    return -1;
-                  } else {
-                    return 0;
-                  }
-                };
-              }
-              that.infoChild1Lists.sort(compare("contract_name"));
-              // console.log("codeNameSort");
-              // console.log(that.infoChild1Lists);
-            } else if (infoC1ArrSort == "dargSort") {
-              // 拖拽后排序
-              let arr2 = [];
-              for (let i = 0; i < that.infoChild1Lists.length; i++) {
-                for (let j = 0; j < data.length; j++) {
-                  if (
-                    that.infoChild1Lists[i].contract_short == data[j].Symbol
-                  ) {
-                    arr2.push(that.infoChild1Lists[j]);
-                  }
-                }
-              }
-              that.infoChild1Lists = arr2;
-              // console.log("dargSort");
-              // console.log(that.infoChild1Lists);
+      let infoC1ArrSort = window.localStorage.getItem("infoC1ArrSort");
+      if (allCodeName.length == 2) {
+        // 删完后按拖拽处理
+        infoC1ArrSort = window.localStorage.setItem(
+          "infoC1ArrSort",
+          "dargSort"
+        );
+      }
+      if (infoC1ArrSort) {
+        // console.log(JSON.parse(JSON.stringify(that.infoChild1Lists)));
+        // console.log(data);
+        for (let i = 0; i < that.infoChild1Lists.length; i++) {
+          for (let j = 0; j < data.length; j++) {
+            if (that.infoChild1Lists[i].contract_short == data[j].Symbol) {
+              that.infoChild1Lists[i].ask1_price = data[j].SP1; // 卖价
+              that.infoChild1Lists[i].ask1_volume = data[j].SV1; // 卖量
+              that.infoChild1Lists[i].current_price = data[j].NewPrice; // 最新价
+              that.infoChild1Lists[i].current_number = data[j].Vol2; // 现手
+              that.infoChild1Lists[i].bid1_price = data[j].BP1; // 买价
+              that.infoChild1Lists[i].bid1_volume = data[j].BV1; // 买量
+              that.infoChild1Lists[i].up_ratio = data[j].PriceChangeRatio; // 涨幅
             }
           }
-          let str = "";
-          str = JSON.stringify(that.infoChild1Lists);
-          window.localStorage.setItem("infoFaceC1Lists", str);
         }
-      });
+
+        if (infoC1ArrSort == "upRatioSort") {
+          // 按涨幅升序排序
+          function sortBy(field) {
+            //数字类型的比较
+            return function(a, b) {
+              return a[field] - b[field];
+            };
+          }
+          that.infoChild1Lists.sort(sortBy("up_ratio"));
+          // console.log("upRatioSort");
+          // console.log(that.infoChild1Lists);
+        } else if (infoC1ArrSort == "downRatioSort") {
+          // 按涨幅降序排序
+          function sortBy(field) {
+            return function(a, b) {
+              return b[field] - a[field];
+            };
+          }
+          that.infoChild1Lists.sort(sortBy("up_ratio"));
+          // console.log("downRatioSort");
+          // console.log(that.infoChild1Lists);
+        } else if (infoC1ArrSort == "codeNameSort") {
+          // 按品种排序
+          function compare(propertyName) {
+            //字符串类型的比较
+            return function(object1, object2) {
+              var value1 = object1[propertyName];
+              var value2 = object2[propertyName];
+              if (value1 < value2) {
+                return 1;
+              } else if (value1 > value2) {
+                return -1;
+              } else {
+                return 0;
+              }
+            };
+          }
+          that.infoChild1Lists.sort(compare("contract_name"));
+          // console.log("codeNameSort");
+          // console.log(that.infoChild1Lists);
+        } else if (infoC1ArrSort == "dargSort") {
+          // 拖拽后排序
+          let arr2 = [];
+          for (let i = 0; i < that.infoChild1Lists.length; i++) {
+            for (let j = 0; j < data.length; j++) {
+              if (that.infoChild1Lists[i].contract_short == data[j].Symbol) {
+                arr2.push(that.infoChild1Lists[j]);
+              }
+            }
+          }
+          that.infoChild1Lists = arr2;
+          // console.log("dargSort");
+          // console.log(that.infoChild1Lists);
+        }
+      }
+      let str = "";
+      str = JSON.stringify(that.infoChild1Lists);
+      window.localStorage.setItem("infoFaceC1Lists", str);
     },
     moveStart() {
       // 拖拽开始
       let that = this;
-      that.infoC1GetTimerBoole = false;
       let str = "";
       str = JSON.stringify(that.infoChild1Lists);
       window.localStorage.setItem("infoFaceC1Lists", str);
@@ -346,7 +320,6 @@ export default {
       window.localStorage.setItem("infoFaceC1Lists", str);
       // 如果拖拽了就按照拖拽的排序
       window.localStorage.setItem("infoC1ArrSort", "dargSort");
-      that.infoC1GetTimerBoole = true;
     },
     handleCloseMenu(e) {
       this.isShowRightMenu = false;
@@ -575,8 +548,6 @@ export default {
   beforeDestroy() {
     //在开始销毁实例时调用。此时实例仍然有功能。
     //清除定时器
-    clearInterval(this.infoC1GetTimer);
-    this.infoC1GetTimerBoole = false;
     // console.log("beforeDestroy")
   },
   destroyed() {

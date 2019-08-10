@@ -25,9 +25,9 @@
           </thead>
           <tbody>
             <tr
-              @click.left="infoContsFun(infoCont.contract_short, infoCont.contract_symbols)"
-              @dblclick="dbInfoContsKlineFun(infoCont.contract_short, infoCont.contract_symbols)"
-              @click.right="infoC2RightMenuFun(infoCont.contract_short, infoCont.contract_symbols)"
+              @click.left="infoContsFun(infoCont.contract_short, infoCont.contract_name, infoCont.contract_symbols)"
+              @dblclick="dbInfoContsKlineFun(infoCont.contract_short, infoCont.contract_name, infoCont.contract_symbols)"
+              @click.right="infoC2RightMenuFun(infoCont.contract_short, infoCont.contract_name, infoCont.contract_symbols)"
               v-for="infoCont in infoConts"
               :key="infoCont.id"
               :class="{info_c2_cont_tr_active: infoContsActiveName == infoCont.contract_short}"
@@ -254,14 +254,10 @@ export default {
           that.infoConts[i].ask1_price = Number(val[7]).toFixed(that.infoConts[i].future_price); // 卖价
           that.infoConts[i].bid1_volume = val[8]; // 买量
           that.infoConts[i].ask1_volume = val[9]; // 卖量
-          that.infoConts[i].volume = Number(val[10]).toFixed(that.infoConts[i].future_price); // 成交量
+          that.infoConts[i].volume = Number(val[10]); // 成交量
           that.infoConts[i].up_num = Number(val[3] - val[14]).toFixed(that.infoConts[i].future_price); // 涨跌
           that.infoConts[i].up_ratio = Number((val[3] - val[14]) / val[14] * 100).toFixed(2); // 涨幅
-          if (val[15] != "----") {
-            that.infoConts[i].turnover = Number(val[15]).toFixed(that.infoConts[i].future_price); // 持仓量
-          } else {
-            that.infoConts[i].turnover = val[15]; // 持仓量
-          }
+          that.infoConts[i].turnover = val[15]; // 持仓量
           that.infoConts[i].dateTime = that.timesToTime(val[4]); // 更新时间
           that.infoConts[i].open_price = Number(val[11]).toFixed(that.infoConts[i].future_price); // 开盘
           that.infoConts[i].high_price = Number(val[12]).toFixed(that.infoConts[i].future_price); // 最高价
@@ -340,10 +336,7 @@ export default {
     that.infoClickTopBtnsType = that.$store.state.contractTyle; //交易所类型
     that.infoContsActiveName = that.$store.state.symbolName; // 合约名字
 
-    that.infoClickTopBtnsFun(
-      that.infoClickTopBtnsId,
-      that.infoClickTopBtnsType
-    ); // 交易所信息初始化
+    that.infoClickTopBtnsFun(that.infoClickTopBtnsId, that.infoClickTopBtnsType); // 交易所信息初始化
     that.infoC2ChangeCodeNameFun = function() {
       // 其他地方调用
       that.infoContsActiveName = that.$store.state.symbolName; // 合约名字
@@ -351,7 +344,7 @@ export default {
     // that.infoC2GetCurTimer = setInterval(() => {
     //   that.getStockList(that.symbolList);
     // }, 3000000);
-    that.getStockList(that.symbolList); //初始化信息
+    // that.getStockList(that.symbolList); //初始化信息
   },
   methods: {
     infoClickTopBtnsFun(id, typeNum) {
@@ -382,7 +375,7 @@ export default {
             that.symbolList = that.symbolList.substring(0, that.symbolList.length - 1);
             // http://dt.cnshuhai.com/stock.php?u=17335495235&symbol=BS&type=stock
             // console.log(that.symbolList);
-            that.getStockList(that.symbolList);
+            // that.getStockList(that.symbolList);
             if (id != sessionStorage.getItem("infoTopBtnId")) {
               sessionStorage.removeItem("conLists"); // 每次切换交易所删除缓存
             }
@@ -408,6 +401,30 @@ export default {
               }
             }
             // console.log(that.infoConts);
+            if (localStorage.getItem("allSymbolList")) {
+              var allSymbolList = JSON.parse(localStorage.getItem("allSymbolList"));
+              for (let i = 0; i < that.infoConts.length; i++) {
+                for (let j = 0; j < allSymbolList.length; j++) {
+                  if (that.infoConts[i].contract_symbols == allSymbolList[j][2]) {
+                    that.infoConts[i].current_price = Number(allSymbolList[j][3]).toFixed(that.infoConts[i].future_price); // 最新价
+                    that.infoConts[i].current_number = allSymbolList[j][5]; // 现手
+                    that.infoConts[i].bid1_price = Number(allSymbolList[j][6]).toFixed(that.infoConts[i].future_price); // 买价
+                    that.infoConts[i].ask1_price = Number(allSymbolList[j][7]).toFixed(that.infoConts[i].future_price); // 卖价
+                    that.infoConts[i].bid1_volume = allSymbolList[j][8]; // 买量
+                    that.infoConts[i].ask1_volume = allSymbolList[j][9]; // 卖量
+                    that.infoConts[i].volume = Number(allSymbolList[j][10]); // 成交量
+                    that.infoConts[i].up_num = Number(allSymbolList[j][3] - allSymbolList[j][14]).toFixed(that.infoConts[i].future_price); // 涨跌
+                    that.infoConts[i].up_ratio = Number((allSymbolList[j][3] - allSymbolList[j][14]) / allSymbolList[j][14] * 100).toFixed(2); // 涨幅
+                    that.infoConts[i].turnover = allSymbolList[j][15]; // 持仓量
+                    that.infoConts[i].dateTime = that.timesToTime(allSymbolList[j][4]); // 更新时间
+                    that.infoConts[i].open_price = Number(allSymbolList[j][11]).toFixed(that.infoConts[i].future_price); // 开盘
+                    that.infoConts[i].high_price = Number(allSymbolList[j][12]).toFixed(that.infoConts[i].future_price); // 最高价
+                    that.infoConts[i].low_price = Number(allSymbolList[j][13]).toFixed(that.infoConts[i].future_price); // 最低价
+                    that.infoConts[i].p_close = Number(allSymbolList[j][14]).toFixed(that.infoConts[i].future_price); // 昨收
+                  }
+                }
+              }
+            }
           } else if (res.data.code == 0 || res.data.code == -1) {
             that.$message.error(res.data.msg);
           }
@@ -442,67 +459,11 @@ export default {
       // }
       return h + m + s;
     },
-    getStockList(symbol) {
-      // 获取第三方行情
-      let that = this;
-      http://47.110.12.144:8181/?symbol=IFML&k=M1&kcount=1000
-      $.ajax({
-        url:
-          "http://dt.cnshuhai.com/stock.php?u=17335495235&symbol=" + symbol + "&type=stock",
-        type: "GET",
-        dataType: "json",
-        cache: true,
-        success: function(data) {
-          for (let i = 0; i < that.infoConts.length; i++) {
-            for (let j = 0; j < data.length; j++) {
-              if (that.infoConts[i].contract_short == data[j].Symbol) {
-                that.infoConts[i].current_price = data[j].NewPrice; // 最新价
-                that.infoConts[i].current_number = data[j].Vol2; // 现手
-                that.infoConts[i].bid1_price = data[j].BP1; // 买价
-                that.infoConts[i].ask1_price = data[j].SP1; // 卖价
-                that.infoConts[i].bid1_volume = data[j].BV1; // 买量
-                that.infoConts[i].ask1_volume = data[j].SV1; // 卖量
-                that.infoConts[i].volume = data[j].Volume; // 成交量
-                that.infoConts[i].up_num = (
-                  parseFloat(data[j].NewPrice) - parseFloat(data[j].LastClose)
-                ).toFixed(that.infoConts[i].future_price); // 涨跌
-                that.infoConts[i].up_ratio = data[j].PriceChangeRatio.toFixed(2); // 涨幅
-                that.infoConts[i].turnover = data[j].Open_Int; // 持仓量
-                that.infoConts[i].dateTime = that.timesToTime(data[j].Date); // 更新时间
-                that.infoConts[i].open_price = data[j].Open; // 开盘
-                that.infoConts[i].high_price = data[j].High; // 最高价
-                that.infoConts[i].low_price = data[j].Low; // 最低价
-                that.infoConts[i].p_close = data[j].LastClose; // 昨收
-              }
-            }
-          }
-          // console.log(JSON.parse(JSON.stringify(that.infoConts)));
-          if (
-            that.infoClickTopBtnsId != sessionStorage.getItem("infoTopBtnId")
-          ) {
-            sessionStorage.removeItem("conLists"); // 每次切换交易所删除缓存
-          }
-          if (!that.$store.state.symbolName) {
-            that.$store.commit(
-              "symbolNameFun",
-              that.infoConts[0].contract_short
-            ); // 默认的合约名字
-            that.$store.commit(
-              "otherCodeNameFun",
-              that.infoConts[0].contract_symbols
-            ); // 新添加合约名字
-            that.infoContsActiveName = that.infoConts[0].contract_short; // 第一次进入默认选中的合约
-          }
-          that.$store.commit("symbolListsFun", that.infoConts);
-          // console.log(that.$store.state.symbolLists);
-        }
-      });
-    },
     handleCloseTfC2Menu(e) {
       // 点击空白部分关闭右键
       this.isShowTfC2Menu = false;
     },
-    infoC2RightMenuFun(index, otherName) {
+    infoC2RightMenuFun(index, zhName, otherName) {
       // 右键弹出菜单
       this.isShowTfC2Menu = true;
       let totalWidth = this.$refs.infoface2.getBoundingClientRect().right; //总宽度
@@ -514,6 +475,10 @@ export default {
         this.activeLeftMenu = event.pageX + 1; //给left赋值
         this.activeTopMenu = event.pageY + 1; //给top赋值
       }
+
+      this.$store.commit("changeCodeNameFun", zhName); // 中文合约名字
+      this.$store.commit("symbolNameFun", index); // 英文合约名字
+      this.$store.commit("otherCodeNameFun", otherName); // 新加的合约名字
 
       for (let i = 0; i < this.infoConts.length; i++) {
         if (this.infoConts[i].contract_short == index) {
@@ -612,7 +577,7 @@ export default {
       that.infoClickTopBtnsType = typeNum; // 交易所类型
       that.infoClickTopBtnsFun(index, typeNum);
     },
-    infoContsFun(index, otherName) {
+    infoContsFun(index, zhName, otherName) {
       // 每条合约
       let that = this;
       for (let i = 0; i < that.infoConts.length; i++) {
@@ -626,6 +591,7 @@ export default {
               that.infoConts[i].contract_name
             ); // 中文合约名字
             that.$store.commit("pointFun", that.infoConts[i].future_price); // 小数位
+            that.$store.commit("changeCodeNameFun", zhName); // 中文合约名字
             that.$store.commit("symbolNameFun", index); // 英文合约名字
             that.$store.commit("otherCodeNameFun", otherName); // 新加的合约名字
             window.sessionStorage.setItem("index", 1);
@@ -641,7 +607,7 @@ export default {
         }
       }
     },
-    dbInfoContsKlineFun(index, otherName) {
+    dbInfoContsKlineFun(index, zhName, otherName) {
       // 双击合约去K线
       let that = this;
       for (let i = 0; i < that.infoConts.length; i++) {
@@ -663,6 +629,7 @@ export default {
               that.infoConts[i].contract_name
             ); // 中文合约名字
             that.$store.commit("pointFun", that.infoConts[i].future_price); // 小数位
+            that.$store.commit("changeCodeNameFun", zhName); // 中文合约名字
             that.$store.commit("symbolNameFun", index); // 英文合约名字
             that.$store.commit("otherCodeNameFun", otherName); // 新加的合约名字
             sessionStorage.setItem("index", 1);
