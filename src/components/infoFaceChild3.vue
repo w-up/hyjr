@@ -244,6 +244,7 @@ export default {
             for (const key in res.data.data) {
               if (res.data.data[key][0] == symbol) {
                 that.symbolInfo.p_close = Number(res.data.data[key][4]).toFixed(that.$store.state.point); //昨收价
+                // console.log(that.symbolInfo.p_close);
               }
             }
           }
@@ -288,7 +289,7 @@ export default {
             nozzle: "kline",
             symbol: symbol,
             k: "M1",
-            kcount: 1000
+            kcount: 1440
           }
         })
         .then(res => {
@@ -298,6 +299,7 @@ export default {
             let arr = [];
             let timeData = [];
             var beginTime = that.trade_time[0].substring(0, 5) + ":" + "00";
+            // console.log(beginTime);
             var nowYear = new Date().getFullYear();
             var nowMonth = new Date().getMonth()+1;
             var nowDay = new Date().getDate();
@@ -315,6 +317,22 @@ export default {
                   let arrStr = res.data[i][0].slice(6, 8) + res.data[i][0].slice(8, 10) + " " + res.data[i][2] + " " + res.data[i][5];
                   arr.push(arrStr);
                 }
+              } if (nowWeek == 1) { // 周一取周五数据
+                if (Number(beginTime.slice(0, 2)) * 60 + Number(beginTime.slice(3, 5)) > new Date().getHours() * 60 + new Date().getMinutes()) {
+                  // console.log(Date.parse(new Date(time)));
+                  // console.log(Date.parse(new Date(begin)) - 259200000);
+                  // console.log(Number(beginTime.slice(0, 2)) * 60 + Number(beginTime.slice(3, 5)));
+                  // console.log(new Date().getHours() + new Date().getMinutes());
+                  if(Date.parse(new Date(time)) >= Date.parse(new Date(begin)) - 259200000) { //只要当天交易时间的数据
+                    let arrStr = res.data[i][0].slice(6, 8) + res.data[i][0].slice(8, 10) + " " + res.data[i][2] + " " + res.data[i][5];
+                    arr.push(arrStr);
+                  }
+                } else {
+                  if(Date.parse(new Date(time)) >= Date.parse(new Date(begin))) { //只要当天交易时间的数据
+                    let arrStr = res.data[i][0].slice(6, 8) + res.data[i][0].slice(8, 10) + " " + res.data[i][2] + " " + res.data[i][5];
+                    arr.push(arrStr);
+                  }
+                }
               } else {
                 if(Date.parse(new Date(time)) >= Date.parse(new Date(begin))) { //只要当天交易时间的数据
                   let arrStr = res.data[i][0].slice(6, 8) + res.data[i][0].slice(8, 10) + " " + res.data[i][2] + " " + res.data[i][5];
@@ -326,7 +344,10 @@ export default {
             var lastIndex = that.trade_time.length - 1;
             var endTime = that.trade_time[lastIndex].substring(6, 12); //最后一条时间
             var everyTime = that.getTimes(that.trade_time); // 交易时间段
-            makeTimeLine2(arr, that.symbolInfo, everyTime, endTime);
+            
+            setTimeout(() => {
+              makeTimeLine2(arr, that.symbolInfo, everyTime, endTime);
+            }, 1000);
           }
         });
     },
