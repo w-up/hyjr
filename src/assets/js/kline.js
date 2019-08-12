@@ -2895,7 +2895,7 @@ Theme.Color = {
 Theme.Font = {
   Default: Theme.theme_font_id++
 };
-
+// 黑色主题
 var DarkTheme =
 /*#__PURE__*/
 function (_Theme) {
@@ -2908,8 +2908,8 @@ function (_Theme) {
     _this._colors = [];
 
     if (_kline.default.instance.reverseColor) {
-      _this._colors[Theme.Color.Positive] = "#990e0e";
-      _this._colors[Theme.Color.Negative] = "#19b34c";
+      _this._colors[Theme.Color.Positive] = "#990e0e";//涨的颜色
+      _this._colors[Theme.Color.Negative] = "#19b34c";//跌的颜色
       _this._colors[Theme.Color.PositiveDark] = "#3b0e08";
       _this._colors[Theme.Color.NegativeDark] = "#004718";
     } else {
@@ -2934,8 +2934,8 @@ function (_Theme) {
     _this._colors[Theme.Color.Grid2] = "#666";
     _this._colors[Theme.Color.Grid3] = "#888";//x apoint 边框颜色
     _this._colors[Theme.Color.Grid4] = "#aaa";//y apoint 边框颜色
-    _this._colors[Theme.Color.TextPositive] = "#1bd357";//头部涨幅大于0的颜色
-    _this._colors[Theme.Color.TextNegative] = "#ff6f5e";//头部涨幅小于0的颜色
+    _this._colors[Theme.Color.TextPositive] = "#990e0e";//头部涨幅大于0的颜色
+    _this._colors[Theme.Color.TextNegative] = "#00cccc";//头部涨幅小于0的颜色
     _this._colors[Theme.Color.Text0] = "#444";
     _this._colors[Theme.Color.Text1] = "#666";
     _this._colors[Theme.Color.Text2] = "#888";//y轴刻度字体颜色
@@ -2943,7 +2943,7 @@ function (_Theme) {
     _this._colors[Theme.Color.Text4] = "#ccc";//X轴apoint字体颜色//头部:时间开高低收字体颜色
     _this._colors[Theme.Color.LineColorNormal] = "#a6a6a6";
     _this._colors[Theme.Color.LineColorSelected] = "#ffffff";
-    _this._colors[Theme.Color.CircleColorFill] = "#000000";
+    _this._colors[Theme.Color.CircleColorFill] = "#ffffff";
     _this._colors[Theme.Color.CircleColorStroke] = "#ffffff";
     _this._fonts = [];
     _this._fonts[Theme.Font.Default] = "12px Tahoma";
@@ -2956,7 +2956,7 @@ function (_Theme) {
 }(Theme);
 
 exports.DarkTheme = DarkTheme;
-
+// 白色主题
 var LightTheme =
 /*#__PURE__*/
 function (_Theme2) {
@@ -3892,9 +3892,10 @@ function () {
         console.log("DEBUG: " + _kline.default.instance.requestParam);
       }
       (0, _jquery.default)(document).ready(_kline.default.instance.G_HTTP_REQUEST = _jquery.default.ajax({
-        type: "GET",
-        //url: _kline.default.instance.url,
-        url: "http://dt.cnshuhai.com/stock.php?u=17335495235",
+        type: "POST",
+        // url: _kline.default.instance.url,http://dt.cnshuhai.com/stock.php?u=17335495235
+        // http://47.110.12.144:8181/?symbol=IFML&k=M1&kcount=1000
+        url: "http://hfjrserve.shienkeji.com/",
         dataType: 'json',
         // data: _kline.default.instance.requestParam,
         // data:{
@@ -3910,141 +3911,157 @@ function () {
           this.symbol = _kline.default.instance.symbol;
         },
         success: function success(res) {
-          //( period = 3d : 月  1w : 周)
+          //( period = 4w : 月  1w : 周)
           var tmp = _chart_settings.ChartSettings.get();
           var period = tmp.charts.period;
           if (_kline.default.instance.G_HTTP_REQUEST) {
-            if(period == "1w"){
-              //周
-              var data = {
-								"success": true,
-								"data": {
-									"lines": []
-								}
-							};
-              res = res.reverse();
-              var week_arr = [];//有几条数据  那几个周有数据
-              for(var i = 0;i<res.length;i++){
-                var week, checkDate = new Date(new Date());                                         
-                week = getYearWeek(res[i].Date);
-                res[i]["index"] = week;
-								if(typeof(index) != "undefined"){
-							    	//存在
-							    	if(index != week){
-							    		index = week;
-							    		week_arr.push(index);
-							    	}
-							    }else{
-							   		//不存在
-							   		var index = week;
-							   		week_arr.push(index);
-							    } 
+            if (res.length != 0) {
+              var klineData = [];
+              for (let i = 0; i < res.length; i++) {
+                var time = "20" + res[i][0].slice(0, 2) + "/" + res[i][0].slice(2, 4) + "/" + res[i][0].slice(4, 6) + " " + res[i][0].slice(6, 8) + ":" + res[i][0].slice(8, 10) + ":" + "00";
+                klineData.unshift({
+                  Date: Date.parse(new Date(time)) / 1000,
+                  Open: res[i][1],
+                  Close: res[i][2],
+                  Low: res[i][3],
+                  High: res[i][4],
+                  Volume: res[i][5]
+                });
               }
-              var data_arr = [];//三维数组 把数据分为每个周的数据为一个小数组 放在一个大数组里面
-              for(var i = 0;i<week_arr.length;i++){
-								var data_account = [];
-								for(var j = 0;j<res.length;j++){
-									if(week_arr[i] == res[j].index){
-										data_account.push(res[j]);
-									}
-								}
-								data_arr[i] = data_account;
-              }
-              //创建最终渲染K线的数据
-							var line_arr = [];
-							//var arr = [t, o, h, l, c, v];
-							for(var i = 0;i<data_arr.length;i++){
-								var arr = [];
-								var t = data_arr[i][data_arr[i].length-1].Date*1000;//日期最大的一条
-								var o = data_arr[i][0].Open;//每周出事数据的开盘价 作为周开盘价
-								var h = data_arr[i][0].High;//最高价初值
-								var l = data_arr[i][0].Low;//最低价初值
-								var c = data_arr[i][data_arr[i].length-1].Close;//收盘价 最后一条数据的收盘价为周收盘价
-								var v=0;
-								for(var j = 0;j<data_arr[i].length;j++){
-									h = h > data_arr[i][j].High?h:data_arr[i][j].High;//取最低价位一周数据的最低价
-									l = l < data_arr[i][j].Low?l:data_arr[i][j].Low;//取最高价位一周数据的最低价
-									v += data_arr[i][j].Volume;
-								}
-								arr = [t, o, h, l, c, v];
-								line_arr.push(arr);
-							}
-							data.data.lines = line_arr;
-            }else if(period == "3d"){
-              //月
-              var data = {
-								"success": true,
-								"data": {
-									"lines": []
-								}
-							};
-              res = res.reverse();
-              var month_arr = [];//有几条数据  那几个周有数据
-              for(var i = 0;i<res.length;i++){
-                var time, month,year,monthIndex;                                         
-                time = res[i].Date * 1000;
-                var checkDate = new Date(time);   
-                month = checkDate.getMonth() + 1;
-                year= checkDate.getFullYear(); 
-                monthIndex = month * year; 
-                res[i]["index"] = monthIndex;
-								if(typeof(index) != "undefined"){
-							    	//存在
-							    	if(index != monthIndex){
-							    		index = monthIndex;
-							    		month_arr.push(index);
-							    	}
-							  }else{
-							   		//不存在
-							   		var index = monthIndex;
-							   		month_arr.push(index);
-							  } 
-              }
-              var data_arr = [];//三维数组 把数据分为每个周的数据为一个小数组 放在一个大数组里面
-              for(var i = 0;i<month_arr.length;i++){
-								var data_account = [];
-								for(var j = 0;j<res.length;j++){
-									if(month_arr[i] == res[j].index){
-										data_account.push(res[j]);
-									}
-								}
-								data_arr[i] = data_account;
-              }
-              //创建最终渲染K线的数据
-							var line_arr = [];
-							//var arr = [t, o, h, l, c, v];
-							for(var i = 0;i<data_arr.length;i++){
-								var arr = [];
-								var t = data_arr[i][data_arr[i].length-1].Date*1000;//日期最大的一条
-								var o = data_arr[i][0].Open;//每周出事数据的开盘价 作为周开盘价
-								var h = data_arr[i][0].High;//最高价初值
-								var l = data_arr[i][0].Low;//最低价初值
-								var c = data_arr[i][data_arr[i].length-1].Close;//收盘价 最后一条数据的收盘价为周收盘价
-								var v=0;
-								for(var j = 0;j<data_arr[i].length;j++){
-									h = h > data_arr[i][j].High?h:data_arr[i][j].High;//取最低价位一周数据的最低价
-									l = l < data_arr[i][j].Low?l:data_arr[i][j].Low;//取最高价位一周数据的最低价
-									v += data_arr[i][j].Volume;
-								}
-								arr = [t, o, h, l, c, v];
-								line_arr.push(arr);
-							}
-							data.data.lines = line_arr;
-            }else{
-              var data = {
-                "success": true,
-                "data": {
-                  "lines": [
-                  ]
+              res = klineData;
+              if(period == "1w"){
+                //周
+                var data = {
+                  "success": true,
+                  "data": {
+                    "lines": []
+                  }
+                };
+                res = res.reverse();
+                var week_arr = [];//有几条数据  那几个周有数据
+                for(var i = 0;i<res.length;i++){
+                  var week, checkDate = new Date(new Date());                                         
+                  week = getYearWeek(res[i].Date);
+                  res[i]["index"] = week;
+                  if(typeof(index) != "undefined"){
+                      //存在
+                      if(index != week){
+                        index = week;
+                        week_arr.push(index);
+                      }
+                    }else{
+                      //不存在
+                      var index = week;
+                      week_arr.push(index);
+                    } 
                 }
-              };
-              $.each(res,function(index,item){
-                // 时间  开盘价  最高价  最低价  收盘价  成交量
-                var arr = [item.Date*1000,item.Open,item.High,item.Low,item.Close,item.Volume];
-                data.data.lines.unshift(arr);
-              });
+                var data_arr = [];//三维数组 把数据分为每个周的数据为一个小数组 放在一个大数组里面
+                for(var i = 0;i<week_arr.length;i++){
+                  var data_account = [];
+                  for(var j = 0;j<res.length;j++){
+                    if(week_arr[i] == res[j].index){
+                      data_account.push(res[j]);
+                    }
+                  }
+                  data_arr[i] = data_account;
+                }
+                //创建最终渲染K线的数据
+                var line_arr = [];
+                //var arr = [t, o, h, l, c, v];
+                for(var i = 0;i<data_arr.length;i++){
+                  var arr = [];
+                  var t = data_arr[i][data_arr[i].length-1].Date*1000;//日期最大的一条
+                  var o = data_arr[i][0].Open;//每周出事数据的开盘价 作为周开盘价
+                  var h = data_arr[i][0].High;//最高价初值
+                  var l = data_arr[i][0].Low;//最低价初值
+                  var c = data_arr[i][data_arr[i].length-1].Close;//收盘价 最后一条数据的收盘价为周收盘价
+                  var v=0;
+                  for(var j = 0;j<data_arr[i].length;j++){
+                    h = h > data_arr[i][j].High?h:data_arr[i][j].High;//取最低价位一周数据的最低价
+                    l = l < data_arr[i][j].Low?l:data_arr[i][j].Low;//取最高价位一周数据的最低价
+                    v += data_arr[i][j].Volume;
+                  }
+                  // 时间 开 高 低 收 量
+                  arr = [t, o, h, l, c, v];
+                  line_arr.push(arr);
+                }
+                data.data.lines = line_arr;
+              }else if(period == "4w"){
+                //月
+                var data = {
+                  "success": true,
+                  "data": {
+                    "lines": []
+                  }
+                };
+                var month_arr = [];//有几条数据  那几个周有数据
+                for(var i = 0;i<res.length;i++){
+                  var time, month,year,monthIndex;                                         
+                  time = res[i].Date * 1000;
+                  var checkDate = new Date(time);   
+                  month = checkDate.getMonth() + 1;
+                  year= checkDate.getFullYear(); 
+                  monthIndex = month * year; 
+                  res[i]["index"] = monthIndex;
+                  if(typeof(index) != "undefined"){
+                      //存在
+                      if(index != monthIndex){
+                        index = monthIndex;
+                        month_arr.push(index);
+                      }
+                  }else{
+                      //不存在
+                      var index = monthIndex;
+                      month_arr.push(index);
+                  } 
+                }
+                var data_arr = [];//三维数组 把数据分为每个周的数据为一个小数组 放在一个大数组里面
+                for(var i = 0;i<month_arr.length;i++){
+                  var data_account = [];
+                  for(var j = 0;j<res.length;j++){
+                    if(month_arr[i] == res[j].index){
+                      data_account.push(res[j]);
+                    }
+                  }
+                  data_arr[i] = data_account;
+                }
+                //创建最终渲染K线的数据
+                var line_arr = [];
+                //var arr = [t, o, h, l, c, v];
+                for(var i = 0;i<data_arr.length;i++){
+                  var arr = [];
+                  var t = data_arr[i][data_arr[i].length-1].Date*1000;//日期最大的一条
+                  var o = data_arr[i][0].Open;//每周出事数据的开盘价 作为周开盘价
+                  var h = data_arr[i][0].High;//最高价初值
+                  var l = data_arr[i][0].Low;//最低价初值
+                  var c = data_arr[i][data_arr[i].length-1].Close;//收盘价 最后一条数据的收盘价为周收盘价
+                  var v=0;
+                  for(var j = 0;j<data_arr[i].length;j++){
+                    h = h > data_arr[i][j].High?h:data_arr[i][j].High;//取最低价位一周数据的最低价
+                    l = l < data_arr[i][j].Low?l:data_arr[i][j].Low;//取最高价位一周数据的最低价
+                    v += data_arr[i][j].Volume;
+                  }
+                  // 时间 开 高 低 收 量
+                  arr = [t, o, h, l, c, v];
+                  line_arr.push(arr);
+                }
+                data.data.lines = line_arr;
+              }else{
+                var data = {
+                  "success": true,
+                  "data": {
+                    "lines": [
+                    ]
+                  }
+                };
+                $.each(res,function(index,item){
+                  // 时间  开盘价  最高价  最低价  收盘价  成交量
+                  var arr = [item.Date*1000,item.Open,item.High,item.Low,item.Close,item.Volume];
+                  data.data.lines.unshift(arr);
+                });
+              }
+              Control.requestSuccessHandler(data);
             }
-            Control.requestSuccessHandler(data);
           }
         },
         error: function error(xhr, textStatus, errorThrown) {
@@ -4566,24 +4583,23 @@ function () {
 
         return;
       }
-
+      // 时间切换
       if(name == "1m"){
-        _kline.default.instance.url.line = "min,1";
+        _kline.default.instance.url.k = "M1";
       } else if(name == "5m"){
-        _kline.default.instance.url.line = "min,5";
+        _kline.default.instance.url.k = "M5";
       } else if(name == "15m"){
-        _kline.default.instance.url.line = "min,15";
+        _kline.default.instance.url.k = "M15";
       } else if(name == "30m"){
-        _kline.default.instance.url.line = "min,30";
+        _kline.default.instance.url.k = "M30";
       } else if(name == "1h"){
-        _kline.default.instance.url.line = "min,60";
+        _kline.default.instance.url.k = "H1";
       } else if(name == "1d"){
-        _kline.default.instance.url.line = "day";
+        _kline.default.instance.url.k = "D1";
       } else if(name == "1w"){
-        _kline.default.instance.url.line = "day";
-      } else if(name == "3d"){
-        //月
-        _kline.default.instance.url.line = "day";
+        _kline.default.instance.url.k = "D1";
+      } else if(name == "4w"){
+        _kline.default.instance.url.k = "D1";
       }
 
       _chart_manager.ChartManager.instance.getChart().strIsLine = false;
@@ -5182,7 +5198,7 @@ function (_NamedObject) {
         let drawGainPrice = sessionStorage.getItem("drawGainPrice");
         $.ajax({
           method: "POST",
-          url: "http://serve.hngj.hk/",
+          url: "http://hfjrserve.shienkeji.com/",
           data: {
             nozzle: "condition_list",
             token: userToken,
