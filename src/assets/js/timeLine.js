@@ -46,8 +46,8 @@ function makeTimeLine2(arr, info, time_arr, endTime) {
         alwaysShowContent: true,
         axisPointer: {
           type: "cross",
-          lineStyle: { type: "solid", color: "#aaa", opacity: 0 }, // 十字线实线
-          crossStyle: { type: "solid", color: "#aaa", opacity: 0 }, // 十字线实线
+          lineStyle: { type: "solid", color: "#aaa", opacity: 1 }, // 十字线实线
+          crossStyle: { type: "solid", color: "#aaa", opacity: 1 }, // 十字线实线
           label: {
             precision: tfC3PointNum // 纵坐标显示小数位
           }

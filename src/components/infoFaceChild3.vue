@@ -2,7 +2,7 @@
   <div class="infofacechild3">
     <div class="info_face_left" ref="infoFaceC3">
       <!-- <div class="loading" v-show="loading"></div> -->
-      <div id="main" @click="infoC3CrossLineFun"></div>
+      <div id="main"></div>
     </div>
     <div class="info_face_right">
       <h4>{{symbolInfo.name}}（{{symbolInfo.code}}）</h4>
