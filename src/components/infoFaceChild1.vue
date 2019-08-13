@@ -11,7 +11,7 @@
       >
         <li
           class="info_child1_li"
-          @click="infoChild1Fun(infoList.contract_short, infoList.contract_symbols)"
+          @click="infoChild1Fun(infoList.contract_short, infoList.contract_name, infoList.contract_symbols)"
           v-for="infoList in infoChild1Lists"
           :key="infoList.id"
         >
@@ -20,7 +20,7 @@
               :class="{info_child1_li_click_top: infoList.contract_short == infoChild1ListName}"
             >{{infoList.contract_name}}</p>
           </div>
-          <div @click.right="infoC1RightFun(infoList.contract_short, infoList.contract_symbols)">
+          <div @click.right="infoC1RightFun(infoList.contract_short, infoList.contract_name, infoList.contract_symbols)">
             <div class="info_child1_li_cont">
               <div>
                 <p>卖出</p>
@@ -245,7 +245,6 @@ export default {
             }
           }
         }
-
         if (infoC1ArrSort == "upRatioSort") {
           // 按涨幅升序排序
           function sortBy(field) {
@@ -327,14 +326,15 @@ export default {
     handleClose(e) {
       this.isShowRight = false;
     },
-    infoChild1Fun(index, otherName) {
+    infoChild1Fun(index, zhName, otherName) {
       //点击某一个卡片
       for (let i = 0; i < this.infoChild1Lists.length; i++) {
         if (this.infoChild1Lists[i].contract_short == index) {
           this.infoChild1ListName = index;
         }
       }
-      this.$store.commit("symbolNameFun", index); // 合约名字分时 K线用
+      this.$store.commit("changeCodeNameFun", zhName); // 中文合约名字
+      this.$store.commit("symbolNameFun", index); // 英文合约名字
       this.$store.commit("otherCodeNameFun", otherName); // 新加的合约名字
       // 通过ref调用其他地方的函数 值等
       if (this.$store.state.showTface == true) {
@@ -422,14 +422,15 @@ export default {
         }
       }
     },
-    infoC1RightFun(index, otherName) {
+    infoC1RightFun(index, zhName, otherName) {
       //右键某个卡片
       for (let i = 0; i < this.infoChild1Lists.length; i++) {
         if (this.infoChild1Lists[i].contract_short == index) {
           this.infoChild1ListName = index;
         }
       }
-      this.$store.commit("symbolNameFun", index); // 合约名字分时 K线用
+      this.$store.commit("changeCodeNameFun", zhName); // 中文合约名字
+      this.$store.commit("symbolNameFun", index); // 英文合约名字
       this.$store.commit("otherCodeNameFun", otherName); // 新加的合约名字
       // 通过ref调用其他地方的函数 值等
       if (this.$store.state.showTface == true) {
