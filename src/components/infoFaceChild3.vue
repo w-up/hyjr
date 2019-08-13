@@ -173,10 +173,9 @@ export default {
           if (res.data.code == 1) {
             // clearInterval(this.infoC3GetTimer);
             that.trade_time = res.data.data.trading_time; // 交易时间段
-            // that.timeTrendFun(that.$store.state.symbolName); // 第三方分时
-            that.getStockDetail(that.$store.state.otherCodeName); // 分笔明细
             that.getStockList(that.$store.state.otherCodeName); // 获取昨收价
-            that.getTrendData(that.$store.state.otherCodeName); // 分时
+            that.getStockDetail(that.$store.state.otherCodeName); // 分笔明细
+            that.getTrendData(that.$store.state.otherCodeName); // 分时数据
             // window.myChart.resize(); // 调整分时的宽高
           } else if (res.data.code == 0 || res.data.code == -1) {
             that.$message.error(res.data.msg);
