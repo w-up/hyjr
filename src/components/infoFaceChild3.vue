@@ -334,9 +334,16 @@ export default {
                   }
                 }
               } else {
-                if(Date.parse(new Date(time)) >= Date.parse(new Date(begin))) { //只要当天交易时间的数据
-                  let arrStr = res.data[i][0].slice(6, 8) + res.data[i][0].slice(8, 10) + " " + res.data[i][2] + " " + res.data[i][5];
-                  arr.push(arrStr);
+                if (Number(beginTime.slice(0, 2)) * 60 + Number(beginTime.slice(3, 5)) > new Date().getHours() * 60 + new Date().getMinutes()) {
+                  if(Date.parse(new Date(time)) >= Date.parse(new Date(begin)) - 86400000) { //只要当天交易时间的数据
+                    let arrStr = res.data[i][0].slice(6, 8) + res.data[i][0].slice(8, 10) + " " + res.data[i][2] + " " + res.data[i][5];
+                    arr.push(arrStr);
+                  }
+                } else {
+                  if(Date.parse(new Date(time)) >= Date.parse(new Date(begin))) { //只要当天交易时间的数据
+                    let arrStr = res.data[i][0].slice(6, 8) + res.data[i][0].slice(8, 10) + " " + res.data[i][2] + " " + res.data[i][5];
+                    arr.push(arrStr);
+                  }
                 }
               }
             }
