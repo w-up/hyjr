@@ -2623,39 +2623,6 @@ export default {
       //   }
       // }
     },
-    getStockList(symbol) { // 获取第三方行情
-      let that = this;
-      $.ajax({
-        url: "http://dt.cnshuhai.com/stock.php?u=17335495235&symbol=" + symbol + "&type=stock",
-        type: "POST",
-        dataType: "json",
-        cache: true,
-        success: function(data) {
-          // for (let i = 0; i < that.infoConts.length; i++) {
-          //   for (let j = 0; j < data.length; j++) {
-          //     if (that.infoConts[i].contract_short == data[j].Symbol) {
-          //       that.infoConts[i].current_price = data[j].NewPrice; // 最新价
-          //       that.infoConts[i].current_number = data[j].Vol2; // 现手
-          //       that.infoConts[i].bid1_price = data[j].BP1; // 买价
-          //       that.infoConts[i].ask1_price = data[j].SP1; // 卖价
-          //       that.infoConts[i].bid1_volume = data[j].BV1; // 买量
-          //       that.infoConts[i].ask1_volume = data[j].SV1; // 卖量
-          //       that.infoConts[i].volume = data[j].Volume; // 成交量
-          //       that.infoConts[i].up_num = (parseFloat(data[j].NewPrice) - parseFloat(data[j].LastClose)).toFixed(that.infoConts[i].future_price); // 涨跌
-          //       that.infoConts[i].up_ratio = data[j].PriceChangeRatio; // 涨幅
-          //       that.infoConts[i].turnover = data[j].Open_Int; // 持仓量
-          //       that.infoConts[i].dateTime = that.timesToTime(data[j].Date); // 更新时间
-          //       that.infoConts[i].open_price = data[j].Open; // 开盘
-          //       that.infoConts[i].high_price = data[j].High; // 最高价
-          //       that.infoConts[i].low_price = data[j].Low; // 最低价
-          //       that.infoConts[i].p_close = data[j].LastClose; // 昨收
-          //     }
-          //   }
-          // }
-          // console.log(JSON.parse(JSON.stringify(that.infoConts)));
-        }
-      });
-    },
     initWebSocket(){ //初始化weosocket
       const wsuri = "ws://47.110.12.144:2346";
       this.websock = new WebSocket(wsuri);
@@ -2879,16 +2846,16 @@ export default {
       if (this.$store.state.isShowAlertTface) {
         // 已弹出
         if (this.$store.state.isShowTf) {
-          this.$store.commit("isShowTfFun", false); // // 已登录按F12外盘显隐控制
+          this.$store.commit("isShowTfFun", false); // 已登录按F12外盘显隐控制
         } else {
-          this.$store.commit("isShowTfFun", true); // // 已登录按F12外盘显隐控制
+          this.$store.commit("isShowTfFun", true); // 已登录按F12外盘显隐控制
         }
       } else {
         // 未弹出
         if (this.$store.state.isShowTf) {
-          this.$store.commit("isShowTfFun", false); // // 已登录按F12外盘显隐控制
+          this.$store.commit("isShowTfFun", false); // 已登录按F12外盘显隐控制
         } else {
-          this.$store.commit("isShowTfFun", true); // // 已登录按F12外盘显隐控制
+          this.$store.commit("isShowTfFun", true); // 已登录按F12外盘显隐控制
         }
         if (this.$store.state.infoFaceHeight) {
           this.$store.commit("infoFaceHeightFun", false); // 已登录点击F12按钮高低控制
@@ -3069,7 +3036,10 @@ export default {
           this.depotOrderListMark = index;
           this.msgDepot.depotinfo = this.depotTopContLists[i]; // 选中的合约信息
           this.msgDepotClose.depotinfo = this.depotTopContLists[i]; // 选中平仓的合约信息
-          this.infoClickTopBtnsFun(this.depotTopContLists[i].exchange, this.depotTopContLists[i].contract_name);
+          this.$store.commit("changeCodeNameFun", this.depotTopContLists[i].contract_name); // 中文合约名字
+          this.$store.commit("symbolNameFun", this.depotTopContLists[i].short); // 英文合约名字
+          this.$store.commit("otherCodeNameFun", this.depotTopContLists[i].contract_symbols); // 新加的合约名字
+          this.infoClickTopBtnsFun(this.depotTopContLists[i].exchange, this.depotTopContLists[i].contract_name); // 下拉框联动
           if (this.$route.path == "/wrap/infoFace/infoFaceChild2") {
             this.$parent.$refs.route.$refs.infoRoute.infoClickTopBtnsFun(this.depotTopContLists[i].exchange, 1);
             this.$parent.$refs.route.$refs.infoRoute.infoTopBtnFun(this.depotTopContLists[i].exchange, 1);
@@ -3077,15 +3047,15 @@ export default {
               this.$parent.$refs.route.$refs.infoRoute.infoContsFun(this.depotTopContLists[i].short);
             }, 1000);
           }
-          this.$store.commit("changeCodeNameFun", this.depotTopContLists[i].contract_name); // 存下select选中合约的名字
+          // this.$store.commit("changeCodeNameFun", this.depotTopContLists[i].contract_name); // 存下select选中合约的名字
           if (this.$route.path == "/wrap/infoFace/infoFaceChild3") {
-            this.$parent.$refs.route.$refs.infoRoute.timeKlineFun(this.$store.state.codeName); // 调用C3中改变选中的合约名
+            this.$parent.$refs.route.$refs.infoRoute.timeKlineFun(this.depotTopContLists[i].short); // 调用C3中改变选中的合约名
           }
           if (this.$route.path == "/wrap/infoFace/infoFaceChild4") {
-            this.$parent.$refs.route.$refs.infoRoute.getPointFun(this.$store.state.symbolName);
-            this.$parent.$refs.route.$refs.infoRoute.infoC4GetKlineFun(this.$store.state.symbolName, "day"); // 获取K线数据
-            this.$parent.$refs.route.$refs.infoRoute.getStockList(this.$store.state.symbolName); // 获取第三方行情
-            this.$parent.$refs.route.$refs.infoRoute.getStockData(this.$store.state.symbolName); // 获取分笔明细
+            this.$parent.$refs.route.$refs.infoRoute.getPointFun(this.depotTopContLists[i].short);
+            this.$parent.$refs.route.$refs.infoRoute.infoC4GetKlineFun(this.$store.state.otherCodeName, "D1"); // 获取K线数据
+            this.$parent.$refs.route.$refs.infoRoute.getStockDetail(this.$store.state.otherCodeName); // 分笔明细
+            this.$parent.$refs.route.$refs.infoRoute.initInfoFun(); // 合约信息初始化
           }
         }
       }
@@ -4495,7 +4465,6 @@ export default {
           }
         }
       }
-      
       this.$store.commit("isSubAddFun", true); // 列表切换后重新获取实时价格
       this.websocketonopen(); // 切换合约后推送重新请求
       
