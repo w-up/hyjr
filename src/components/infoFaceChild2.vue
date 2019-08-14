@@ -379,11 +379,15 @@ export default {
             if (id != sessionStorage.getItem("infoTopBtnId")) {
               sessionStorage.removeItem("conLists"); // 每次切换交易所删除缓存
             }
-            if (!that.$store.state.symbolName) {
+            if (!that.$store.state.symbolName) { // 第一次进来默认第一个合约
+              that.$store.commit(
+                "changeCodeNameFun",
+                that.infoConts[0].contract_name
+              ); // 中文名字
               that.$store.commit(
                 "symbolNameFun",
                 that.infoConts[0].contract_short
-              ); // 默认的合约名字
+              ); // 英文合约名字
               that.$store.commit(
                 "otherCodeNameFun",
                 that.infoConts[0].contract_symbols
