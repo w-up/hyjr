@@ -3050,6 +3050,7 @@ export default {
           // this.$store.commit("changeCodeNameFun", this.depotTopContLists[i].contract_name); // 存下select选中合约的名字
           if (this.$route.path == "/wrap/infoFace/infoFaceChild3") {
             this.$parent.$refs.route.$refs.infoRoute.timeKlineFun(this.depotTopContLists[i].short); // 调用C3中改变选中的合约名
+            this.$parent.$refs.route.$refs.infoRoute.initInfoFun(); // 合约信息初始化
           }
           if (this.$route.path == "/wrap/infoFace/infoFaceChild4") {
             this.$parent.$refs.route.$refs.infoRoute.getPointFun(this.depotTopContLists[i].short);
