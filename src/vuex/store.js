@@ -74,7 +74,7 @@ const state = { //
   symbolLists: "", // 合约列表
   symbolName: "", // 英文合约名字
   otherCodeName: "", //新加的合约名字
-  allSymbolList: [], // 存储推送的所有合约
+  allSymbolList: JSON.parse(localStorage.getItem("allSymbolList")) || [], // 存储推送的所有合约
   point: "", // 小数位
   tokenStr: "", // 登录token
   userNumber: "", // 用户账号
