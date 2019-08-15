@@ -295,57 +295,59 @@ export default {
           if (res.data.length != 0) {
             //arr: ["0601 25388 894", "0602 25315 1138", "0603 25269 720"] // 时间 价格 成交量
             sessionStorage.setItem("tfC3PointNum", that.$store.state.point); // 小数位
+            var beginTime = that.trade_time[0].substring(0, 2) + that.trade_time[0].substring(3, 5);
             let arr = [];
-            let timeData = [];
-            var beginTime = that.trade_time[0].substring(0, 5) + ":" + "00";
-            // console.log(beginTime);
-            var nowYear = new Date().getFullYear();
-            var nowMonth = new Date().getMonth()+1;
-            var nowDay = new Date().getDate();
-            var nowWeek = new Date().getDay();
-            var begin = nowYear + "/" + nowMonth + "/" + nowDay + " " + beginTime;
-            for (let i = 0; i < res.data.length; i++) {
-              var time = "20" + res.data[i][0].slice(0, 2) + "/" + res.data[i][0].slice(2, 4) + "/" + res.data[i][0].slice(4, 6) + " " + res.data[i][0].slice(6, 8) + ":" + res.data[i][0].slice(8, 10) + ":" + "00";
-              if (nowWeek == 0) { // 周日
-                if(Date.parse(new Date(time)) >= Date.parse(new Date(begin)) - 172800000) { //只要当天交易时间的数据
-                  let arrStr = res.data[i][0].slice(6, 8) + res.data[i][0].slice(8, 10) + " " + res.data[i][2] + " " + res.data[i][5];
-                  arr.push(arrStr);
-                }
-              } if (nowWeek == 6) { // 周六
-                if(Date.parse(new Date(time)) >= Date.parse(new Date(begin)) - 86400000) { //只要当天交易时间的数据
-                  let arrStr = res.data[i][0].slice(6, 8) + res.data[i][0].slice(8, 10) + " " + res.data[i][2] + " " + res.data[i][5];
-                  arr.push(arrStr);
-                }
-              } if (nowWeek == 1) { // 周一取周五数据
-                if (Number(beginTime.slice(0, 2)) * 60 + Number(beginTime.slice(3, 5)) > new Date().getHours() * 60 + new Date().getMinutes()) {
-                  // console.log(Date.parse(new Date(time)));
-                  // console.log(Date.parse(new Date(begin)) - 259200000);
-                  // console.log(Number(beginTime.slice(0, 2)) * 60 + Number(beginTime.slice(3, 5)));
-                  // console.log(new Date().getHours() + new Date().getMinutes());
-                  if(Date.parse(new Date(time)) >= Date.parse(new Date(begin)) - 259200000) { //只要当天交易时间的数据
-                    let arrStr = res.data[i][0].slice(6, 8) + res.data[i][0].slice(8, 10) + " " + res.data[i][2] + " " + res.data[i][5];
-                    arr.push(arrStr);
-                  }
-                } else {
-                  if(Date.parse(new Date(time)) >= Date.parse(new Date(begin))) { //只要当天交易时间的数据
-                    let arrStr = res.data[i][0].slice(6, 8) + res.data[i][0].slice(8, 10) + " " + res.data[i][2] + " " + res.data[i][5];
-                    arr.push(arrStr);
-                  }
-                }
-              } else {
-                if (Number(beginTime.slice(0, 2)) * 60 + Number(beginTime.slice(3, 5)) > new Date().getHours() * 60 + new Date().getMinutes()) {
-                  if(Date.parse(new Date(time)) >= Date.parse(new Date(begin)) - 86400000) { //只要当天交易时间的数据
-                    let arrStr = res.data[i][0].slice(6, 8) + res.data[i][0].slice(8, 10) + " " + res.data[i][2] + " " + res.data[i][5];
-                    arr.push(arrStr);
-                  }
-                } else {
-                  if(Date.parse(new Date(time)) >= Date.parse(new Date(begin))) { //只要当天交易时间的数据
-                    let arrStr = res.data[i][0].slice(6, 8) + res.data[i][0].slice(8, 10) + " " + res.data[i][2] + " " + res.data[i][5];
-                    arr.push(arrStr);
-                  }
-                }
+            for (let i = res.data.length -1; i >= 0; i--) {
+              let arrStr = res.data[i][0].slice(6, 10) + " " + res.data[i][2] + " " + res.data[i][5];
+              arr.unshift(arrStr);
+              if (beginTime == res.data[i][0].substring(6, 10)) {
+                break;
               }
             }
+            // var beginTime = that.trade_time[0].substring(0, 5) + ":" + "00";
+            // var nowYear = new Date().getFullYear();
+            // var nowMonth = new Date().getMonth()+1;
+            // var nowDay = new Date().getDate();
+            // var nowWeek = new Date().getDay();
+            // var begin = nowYear + "/" + nowMonth + "/" + nowDay + " " + beginTime;
+            // for (let i = 0; i < res.data.length; i++) {
+            //   var time = "20" + res.data[i][0].slice(0, 2) + "/" + res.data[i][0].slice(2, 4) + "/" + res.data[i][0].slice(4, 6) + " " + res.data[i][0].slice(6, 8) + ":" + res.data[i][0].slice(8, 10) + ":" + "00";
+            //   if (nowWeek == 0) { // 周日
+            //     if(Date.parse(new Date(time)) >= Date.parse(new Date(begin)) - 172800000) { //只要当天交易时间的数据
+            //       let arrStr = res.data[i][0].slice(6, 8) + res.data[i][0].slice(8, 10) + " " + res.data[i][2] + " " + res.data[i][5];
+            //       arr.push(arrStr);
+            //     }
+            //   } if (nowWeek == 6) { // 周六
+            //     if(Date.parse(new Date(time)) >= Date.parse(new Date(begin)) - 86400000) { //只要当天交易时间的数据
+            //       let arrStr = res.data[i][0].slice(6, 8) + res.data[i][0].slice(8, 10) + " " + res.data[i][2] + " " + res.data[i][5];
+            //       arr.push(arrStr);
+            //     }
+            //   } if (nowWeek == 1) { // 周一取周五数据
+            //     if (Number(beginTime.slice(0, 2)) * 60 + Number(beginTime.slice(3, 5)) > new Date().getHours() * 60 + new Date().getMinutes()) {
+            //       if(Date.parse(new Date(time)) >= Date.parse(new Date(begin)) - 259200000) { //只要当天交易时间的数据
+            //         let arrStr = res.data[i][0].slice(6, 8) + res.data[i][0].slice(8, 10) + " " + res.data[i][2] + " " + res.data[i][5];
+            //         arr.push(arrStr);
+            //       }
+            //     } else {
+            //       if(Date.parse(new Date(time)) >= Date.parse(new Date(begin))) { //只要当天交易时间的数据
+            //         let arrStr = res.data[i][0].slice(6, 8) + res.data[i][0].slice(8, 10) + " " + res.data[i][2] + " " + res.data[i][5];
+            //         arr.push(arrStr);
+            //       }
+            //     }
+            //   } else {
+            //     if (Number(beginTime.slice(0, 2)) * 60 + Number(beginTime.slice(3, 5)) > new Date().getHours() * 60 + new Date().getMinutes()) {
+            //       if(Date.parse(new Date(time)) >= Date.parse(new Date(begin)) - 86400000) { //只要当天交易时间的数据
+            //         let arrStr = res.data[i][0].slice(6, 8) + res.data[i][0].slice(8, 10) + " " + res.data[i][2] + " " + res.data[i][5];
+            //         arr.push(arrStr);
+            //       }
+            //     } else {
+            //       if(Date.parse(new Date(time)) >= Date.parse(new Date(begin))) { //只要当天交易时间的数据
+            //         let arrStr = res.data[i][0].slice(6, 8) + res.data[i][0].slice(8, 10) + " " + res.data[i][2] + " " + res.data[i][5];
+            //         arr.push(arrStr);
+            //       }
+            //     }
+              // }
+            // }
             // console.log(arr);
             var lastIndex = that.trade_time.length - 1;
             var endTime = that.trade_time[lastIndex].substring(6, 12); //最后一条时间
