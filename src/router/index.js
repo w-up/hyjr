@@ -5,6 +5,7 @@ Vue.use(Router)
 
 import LoginFirst from '@/components/loginFirst' //登录
 import Wrap from '@/components/wrap' //总的布局
+import FooterBar from '@/components/footerBar' //底部
 // import LoginMarket from '@/components/loginMarket' //登录行情
 // import LoginSuccessAlert from '@/components/loginSuccessAlert' //登录行情成功弹窗
 // import NavTop from '@/components/navTop' //头部导航栏
@@ -78,6 +79,11 @@ export default new Router({
       path: '/',
       name: 'LoginFirst',
       component: LoginFirst
+    },
+    { //底部
+      path: '/footerBar',
+      name: 'FooterBar',
+      component: FooterBar
     },
     // { //登录行情
     //   path: '/loginMarket',

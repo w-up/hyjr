@@ -24,6 +24,7 @@
     <add-loss v-if="$store.state.isAddLoss" ref="addLoss"></add-loss>
     <!-- 登录外盘 -->
     <login-market v-if="$store.state.showOutTranLogin" ref="loginMarket"></login-market>
+    <footer-bar></footer-bar>
   </div>
 </template>
 
@@ -39,6 +40,7 @@ import AddLoss from "../components/addLoss"; //止损开仓
 import LoginMarket from "../components/loginMarket"; //登录外盘
 import LoginSuccessAlert from "../components/loginSuccessAlert"; //登录成功弹窗
 import WinClose from "../components/winClose"; //关闭窗口
+import FooterBar from "../components/footerBar"; //底部栏
 export default {
   name: "wrap",
   components: {
@@ -54,7 +56,8 @@ export default {
     "add-loss": AddLoss,
     "login-market": LoginMarket,
     "login-success-alert": LoginSuccessAlert,
-    "win-close": WinClose
+    "win-close": WinClose,
+    "footer-bar": FooterBar
   },
   data() {
     return {
@@ -226,7 +229,8 @@ export default {
 <style scoped>
 .wrap {
   width: 100%;
-  height: 100%;
+  /* height: 100%; */
+  height: calc(100% - 30px);
   background: rgba(224, 224, 224, 1);
   cursor: default;
   outline: none;
