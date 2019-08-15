@@ -46,7 +46,7 @@ export default {
       //连接建立之后执行send方法发送数据
       setInterval(() => {
         this.websocketsend("666");
-      }, 30000);
+      }, 10000);
     },
     websocketonerror() {
       //连接建立失败重连
