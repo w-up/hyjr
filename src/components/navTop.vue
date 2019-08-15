@@ -474,7 +474,6 @@ export default {
   //   }
   // },
   mounted: function() {
-    // console.log(this.$store.state.isLoginedOutTran);
     if (this.$store.state.isLoginedOutTran == true) {
       // 已登录
       this.isShowStartLoginOut = false;
