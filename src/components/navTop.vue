@@ -467,6 +467,13 @@ export default {
       time: "" //默认时间点
     };
   },
+  watch: {
+    //监听路由变化
+    $route(to, from) {
+      this.topBtnOne = ""; // 路由变化后清空单点
+      // console.log(to, from);
+    }
+  },
   mounted: function() {
     // console.log(this.$store.state.isLoginedOutTran);
     if (this.$store.state.isLoginedOutTran == true) {
@@ -784,7 +791,13 @@ export default {
       }
     }
   },
-  directives: { clickoutside } //自定义指令点击空白右键消失
+  directives: { clickoutside }, //自定义指令点击空白右键消失
+  beforeDestroy() {
+    //在开始销毁实例时调用。此时实例仍然有功能。
+  },
+  destroyed() {
+    //在实例被销毁之后调用。此时所有的绑定和实例的指令已经解绑，注意是解绑不是销毁,所有的子实例也已经被销毁。
+  }
 };
 </script>
 
