@@ -467,13 +467,12 @@ export default {
       time: "" //默认时间点
     };
   },
-  watch: {
-    //监听路由变化
-    $route(to, from) {
-      this.topBtnOne = ""; // 路由变化后清空单点
-      // console.log(to, from);
-    }
-  },
+  // watch: {
+  //   //监听路由变化
+  //   $route(to, from) {
+  //     this.topBtnOne = ""; // 路由变化后清空单点
+  //   }
+  // },
   mounted: function() {
     // console.log(this.$store.state.isLoginedOutTran);
     if (this.$store.state.isLoginedOutTran == true) {
@@ -721,16 +720,16 @@ export default {
       if (this.$store.state.isShowAlertTface) {
         // 已弹出
         if (this.$store.state.isShowTf) {
-          this.$store.commit("isShowTfFun", false); // // 已登录按F12外盘显隐控制
+          this.$store.commit("isShowTfFun", false); // 已登录按F12外盘显隐控制
         } else {
-          this.$store.commit("isShowTfFun", true); // // 已登录按F12外盘显隐控制
+          this.$store.commit("isShowTfFun", true); // 已登录按F12外盘显隐控制
         }
       } else {
         // 未弹出
         if (this.$store.state.isShowTf) {
-          this.$store.commit("isShowTfFun", false); // // 已登录按F12外盘显隐控制
+          this.$store.commit("isShowTfFun", false); // 已登录按F12外盘显隐控制
         } else {
-          this.$store.commit("isShowTfFun", true); // // 已登录按F12外盘显隐控制
+          this.$store.commit("isShowTfFun", true); // 已登录按F12外盘显隐控制
         }
         if (this.$store.state.infoFaceHeight) {
           this.$store.commit("infoFaceHeightFun", false); // 已登录点击F12按钮高低控制
@@ -750,44 +749,41 @@ export default {
     navTopBtnFun(index) {
       //点击头部按钮
       let that = this;
-      if (index != that.topBtnOne) {
-        that.topBtnOne = index;
-        if (index == 1) {
-          // 自选
-          that.$router.push({
-            path: "/wrap/infoFace/infoFaceChild1"
-          });
-          // 调用infoFace里面的函数改变自选按钮
-          that.$parent.$refs.route.infoLeftBtnsActiveFun(1);
-        }
-        if (index == 2) {
-          // 报价
-          that.$router.push({
-            path: "/wrap/infoFace/infoFaceChild2"
-          });
-          // 调用infoFace里面的函数改变报价按钮
-          that.$parent.$refs.route.infoLeftBtnsActiveFun(2);
-        }
-        if (index == 3) {
-          // 分时
-          that.$router.push({
-            path: "/wrap/infoFace/infoFaceChild3"
-          });
-          // 调用infoFace里面的函数改变分时按钮
-          that.$parent.$refs.route.infoLeftBtnsActiveFun(3);
-        }
-        if (index == 4) {
-          // K线
-          that.$router.push({
-            path: "/wrap/infoFace/infoFaceChild4"
-          });
-          // 调用infoFace里面的函数改变K线按钮
-          that.$parent.$refs.route.infoLeftBtnsActiveFun(4);
-        }
-        if (index == 5) {
-          // 刷新
-          window.location.reload();
-        }
+      if (index == 1) {
+        // 自选
+        that.$router.push({
+          path: "/wrap/infoFace/infoFaceChild1"
+        });
+        // 调用infoFace里面的函数改变自选按钮
+        that.$parent.$refs.route.infoLeftBtnsActiveFun(1);
+      }
+      if (index == 2) {
+        // 报价
+        that.$router.push({
+          path: "/wrap/infoFace/infoFaceChild2"
+        });
+        // 调用infoFace里面的函数改变报价按钮
+        that.$parent.$refs.route.infoLeftBtnsActiveFun(2);
+      }
+      if (index == 3) {
+        // 分时
+        that.$router.push({
+          path: "/wrap/infoFace/infoFaceChild3"
+        });
+        // 调用infoFace里面的函数改变分时按钮
+        that.$parent.$refs.route.infoLeftBtnsActiveFun(3);
+      }
+      if (index == 4) {
+        // K线
+        that.$router.push({
+          path: "/wrap/infoFace/infoFaceChild4"
+        });
+        // 调用infoFace里面的函数改变K线按钮
+        that.$parent.$refs.route.infoLeftBtnsActiveFun(4);
+      }
+      if (index == 5) {
+        // 刷新
+        window.location.reload();
       }
     }
   },
