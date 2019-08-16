@@ -2742,7 +2742,7 @@ export default {
             that.tranContLists = redata.data.day_deal_log; // 成交内容
           } else if (that.webBtnId == "5") {
             // 条件单信息
-            that.conditionOrderLists = redata.data.condition_log.data;
+            that.conditionOrderLists = redata.data.condition_log;
             if (this.conditionOrderListMark) { // 修改之后更改store中选中的条件单
               for (let i = 0; i < this.conditionOrderLists.length; i++) {
                 if (this.conditionOrderListMark == this.conditionOrderLists[i].mark) {
