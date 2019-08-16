@@ -176,6 +176,29 @@ export default {
             that.getStockList(that.$store.state.otherCodeName); // 获取昨收价
             that.getStockDetail(that.$store.state.otherCodeName); // 分笔明细
             that.getTrendData(that.$store.state.otherCodeName); // 分时数据
+            if (!localStorage.getItem("allSymbolList")) { // 没推送缓存就请求
+              var symbolInfo = res.data.data.data; // 合约信息
+              var symbolPrice = res.data.data.five_gear; // 买卖价
+              that.symbolInfo = { // 最新涨跌中间信息
+                name: that.$store.state.codeName, // 中文名字
+                code: that.$store.state.symbolName, // 代码
+                BP1: symbolPrice.bid[4].price != "- -"?Number(symbolPrice.bid[4].price).toFixed(that.$store.state.point):symbolPrice.bid[4].price, // 买价
+                SP1: symbolPrice.ask[0].price != "- -"?Number(symbolPrice.ask[0].price).toFixed(that.$store.state.point):symbolPrice.ask[0].price, // 卖价
+                BV1: symbolPrice.bid[4].number, // 买量
+                SV1: symbolPrice.ask[0].number, // 卖量
+                current: Number(symbolInfo.current).toFixed(that.$store.state.point), // 最新
+                change: Number(symbolInfo.change).toFixed(that.$store.state.point), // 涨跌
+                now_hand: symbolInfo.volume, // 现手
+                change_rate: Number(symbolInfo.change_rate).toFixed(2), // 幅度
+                total_hand: "--", // 总手
+                open: Number(symbolInfo.open).toFixed(that.$store.state.point), // 开盘
+                turnover: Number(symbolInfo.turnover), // 持仓
+                high: Number(symbolInfo.high).toFixed(that.$store.state.point), // 最高
+                p_clear: Number(symbolInfo.p_close).toFixed(that.$store.state.point), // 昨结
+                low: Number(symbolInfo.low).toFixed(that.$store.state.point), // 最低
+                p_close: Number(symbolInfo.p_clear).toFixed(that.$store.state.point), //昨收
+              };
+            }
             // window.myChart.resize(); // 调整分时的宽高
           } else if (res.data.code == 0 || res.data.code == -1) {
             that.$message.error(res.data.msg);
@@ -225,6 +248,8 @@ export default {
             };
           }
         }
+      } else {
+
       }
     },
     getStockList(symbol) { // 获取昨收价
@@ -304,51 +329,6 @@ export default {
                 break;
               }
             }
-            // var beginTime = that.trade_time[0].substring(0, 5) + ":" + "00";
-            // var nowYear = new Date().getFullYear();
-            // var nowMonth = new Date().getMonth()+1;
-            // var nowDay = new Date().getDate();
-            // var nowWeek = new Date().getDay();
-            // var begin = nowYear + "/" + nowMonth + "/" + nowDay + " " + beginTime;
-            // for (let i = 0; i < res.data.length; i++) {
-            //   var time = "20" + res.data[i][0].slice(0, 2) + "/" + res.data[i][0].slice(2, 4) + "/" + res.data[i][0].slice(4, 6) + " " + res.data[i][0].slice(6, 8) + ":" + res.data[i][0].slice(8, 10) + ":" + "00";
-            //   if (nowWeek == 0) { // 周日
-            //     if(Date.parse(new Date(time)) >= Date.parse(new Date(begin)) - 172800000) { //只要当天交易时间的数据
-            //       let arrStr = res.data[i][0].slice(6, 8) + res.data[i][0].slice(8, 10) + " " + res.data[i][2] + " " + res.data[i][5];
-            //       arr.push(arrStr);
-            //     }
-            //   } if (nowWeek == 6) { // 周六
-            //     if(Date.parse(new Date(time)) >= Date.parse(new Date(begin)) - 86400000) { //只要当天交易时间的数据
-            //       let arrStr = res.data[i][0].slice(6, 8) + res.data[i][0].slice(8, 10) + " " + res.data[i][2] + " " + res.data[i][5];
-            //       arr.push(arrStr);
-            //     }
-            //   } if (nowWeek == 1) { // 周一取周五数据
-            //     if (Number(beginTime.slice(0, 2)) * 60 + Number(beginTime.slice(3, 5)) > new Date().getHours() * 60 + new Date().getMinutes()) {
-            //       if(Date.parse(new Date(time)) >= Date.parse(new Date(begin)) - 259200000) { //只要当天交易时间的数据
-            //         let arrStr = res.data[i][0].slice(6, 8) + res.data[i][0].slice(8, 10) + " " + res.data[i][2] + " " + res.data[i][5];
-            //         arr.push(arrStr);
-            //       }
-            //     } else {
-            //       if(Date.parse(new Date(time)) >= Date.parse(new Date(begin))) { //只要当天交易时间的数据
-            //         let arrStr = res.data[i][0].slice(6, 8) + res.data[i][0].slice(8, 10) + " " + res.data[i][2] + " " + res.data[i][5];
-            //         arr.push(arrStr);
-            //       }
-            //     }
-            //   } else {
-            //     if (Number(beginTime.slice(0, 2)) * 60 + Number(beginTime.slice(3, 5)) > new Date().getHours() * 60 + new Date().getMinutes()) {
-            //       if(Date.parse(new Date(time)) >= Date.parse(new Date(begin)) - 86400000) { //只要当天交易时间的数据
-            //         let arrStr = res.data[i][0].slice(6, 8) + res.data[i][0].slice(8, 10) + " " + res.data[i][2] + " " + res.data[i][5];
-            //         arr.push(arrStr);
-            //       }
-            //     } else {
-            //       if(Date.parse(new Date(time)) >= Date.parse(new Date(begin))) { //只要当天交易时间的数据
-            //         let arrStr = res.data[i][0].slice(6, 8) + res.data[i][0].slice(8, 10) + " " + res.data[i][2] + " " + res.data[i][5];
-            //         arr.push(arrStr);
-            //       }
-            //     }
-              // }
-            // }
-            // console.log(arr);
             var lastIndex = that.trade_time.length - 1;
             var endTime = that.trade_time[lastIndex].substring(6, 12); //最后一条时间
             var everyTime = that.getTimes(that.trade_time); // 交易时间段

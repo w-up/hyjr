@@ -303,6 +303,49 @@ export default {
         that.kline.resize(that.klineWidth, that.klineHeight);
       }
     };
+    that.timeKlineFun = function(symbolName) {
+      that
+        .$http({
+          url: "/",
+          method: "post",
+          timeout: 10000,
+          data: {
+            nozzle: "time_sharing",
+            code: symbolName
+          }
+        })
+        .then(res => {
+          if (res.data.code == 1) {
+            var symbolInfo = res.data.data.data; // 合约信息
+            var symbolPrice = res.data.data.five_gear; // 买卖价
+            that.symbolInfo = { // 最新涨跌中间信息
+              name: that.$store.state.codeName, // 中文名字
+              code: that.$store.state.symbolName, // 代码
+              BP1: symbolPrice.bid[4].price != "- -"?Number(symbolPrice.bid[4].price).toFixed(that.$store.state.point):symbolPrice.bid[4].price, // 买价
+              SP1: symbolPrice.ask[0].price != "- -"?Number(symbolPrice.ask[0].price).toFixed(that.$store.state.point):symbolPrice.ask[0].price, // 卖价
+              BV1: symbolPrice.bid[4].number, // 买量
+              SV1: symbolPrice.ask[0].number, // 卖量
+              current: Number(symbolInfo.current).toFixed(that.$store.state.point), // 最新
+              change: Number(symbolInfo.change).toFixed(that.$store.state.point), // 涨跌
+              now_hand: symbolInfo.volume, // 现手
+              change_rate: Number(symbolInfo.change_rate).toFixed(2), // 幅度
+              total_hand: "--", // 总手
+              open: Number(symbolInfo.open).toFixed(that.$store.state.point), // 开盘
+              turnover: Number(symbolInfo.turnover), // 持仓
+              high: Number(symbolInfo.high).toFixed(that.$store.state.point), // 最高
+              p_clear: Number(symbolInfo.p_close).toFixed(that.$store.state.point), // 昨结
+              low: Number(symbolInfo.low).toFixed(that.$store.state.point), // 最低
+              p_close: Number(symbolInfo.p_clear).toFixed(that.$store.state.point), //昨收
+            };
+            // window.myChart.resize(); // 调整分时的宽高
+          } else if (res.data.code == 0 || res.data.code == -1) {
+            that.$message.error(res.data.msg);
+          }
+        });
+    };
+    if (!localStorage.getItem("allSymbolList")) { // 没推送缓存就请求
+      that.timeKlineFun(that.$store.state.symbolName);
+    }
     that.initInfoFun(); // 合约信息初始化
   },
   directives: { clickoutside }, //自定义指令点击空白右键消失
