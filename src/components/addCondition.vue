@@ -19,7 +19,6 @@
                   <option v-for="tfBtmThreeOrderOption in tfBtmThreeOrderOptions" :disabled="tfBtmThreeOrderOption.current_price == '--'" :key="tfBtmThreeOrderOption.id">{{tfBtmThreeOrderOption.contract_name}}</option>
                 </select>
               </div>
-
               <p class="tf_btn_more_alert_cont_btm_r_p">触发条件</p>
               <div class="tf_more_alert_l_cont">
                 <div class="tf_more_alert_l_line add_condition_btn">
@@ -196,7 +195,6 @@ export default {
     return {
       tfBtmThreeOrderSelect: "", // 条件单 select 默认选中
       tfBtmThreeOrderOptions: [], // 条件单 option
-
       addConditionChooseBtns: [ // 按钮列表
         {id: 0, name: "价格"},
         {id: 1, name: "时间"},
@@ -316,7 +314,6 @@ export default {
         })
         .then(res => {
           if (res.data.code == 1) {
-            // console.log(res.data.data);
             that.tfMoreAlertUserPrices[0].price = res.data.data.current_info.current_price; // 最新价
             that.tfMoreAlertUserPrices[1].price = res.data.data.current_info.current_price; // 也走最新价
             that.tfMoreAlertUserPrices[2].price = res.data.data.current_info.current_price; // 也走最新价
@@ -404,6 +401,9 @@ export default {
     $(function() {
       $(".tf_btn_more_alert").draggable({handle: ".tf_btn_more_alert_top", containment: 'body'});
     });
+    that.getOrderOneInfoFun(that.$store.state.codeName); // 获取选中的合约的信息
+    that.getOrderTime();
+    that.getOrderSelectListsFun(); // 调用一下合约列表
   },
   methods: {
     tfRightBtnMoreAlertCloseFun() {
@@ -653,7 +653,6 @@ export default {
         }
       }
     },
-
     tfMoreAlertUserNumSubFun() {
       // 账号手数 减
       if (this.tfMoreAlertUserNum <= 1) {
@@ -709,23 +708,33 @@ export default {
     tfChangeSelectFun(index) {
       // 下拉框改变更新
       this.getOrderOneInfoFun(index);
-      this.$store.commit("changeCodeNameFun", index); // 存下点击合约的名字
-      // 通过ref调用其他地方的函数 值等
-      if (this.$route.path == "/wrap/infoFace/infoFaceChild2") {
-        this.$parent.$refs.route.$refs.infoRoute.infoC2ChangeCodeNameFun(); // 调用C2中改变选中的合约名
-      }
-      if (this.$route.path == "/wrap/infoFace/infoFaceChild3") {
-        this.$parent.$refs.route.$refs.infoRoute.timeKlineFun(this.$store.state.codeName); // 调用C3中改变选中的合约名
-      }
-      if (this.$route.path == "/wrap/infoFace/infoFaceChild4") {
-        this.$parent.$refs.route.$refs.infoRoute.infoC4GetKlineFun(this.$store.state.codeName, "001"); // 调用C4中改变K线
-        this.$parent.$refs.route.$refs.infoRoute.infoC4RightFaceFun(this.$store.state.codeName); // C4改变右侧面板
+      for (let i = 0; i < this.tfBtmThreeOrderOptions.length; i++) {
+        if (this.tfBtmThreeOrderOptions[i].contract_name == index) {
+          this.$store.commit("changeCodeNameFun", index); // 中文合约名字
+          this.$store.commit("symbolNameFun", this.tfBtmThreeOrderOptions[i].contract_short); // 英文合约名字
+          this.$store.commit("otherCodeNameFun", this.tfBtmThreeOrderOptions[i].contract_symbols); // 新加的合约名字
+          if (this.$route.path == "/wrap/infoFace/infoFaceChild2") {
+            this.$parent.$refs.route.$refs.infoRoute.infoC2ChangeCodeNameFun(); // 调用C2中改变选中的合约名
+          }
+          if (this.$route.path == "/wrap/infoFace/infoFaceChild3") {
+            this.$parent.$refs.route.$refs.infoRoute.timeKlineFun(this.$store.state.symbolName); // 调用C3中改变选中的合约名
+            this.$parent.$refs.route.$refs.infoRoute.initInfoFun(); // 合约信息初始化
+          }
+          if (this.$route.path == "/wrap/infoFace/infoFaceChild4") {
+            this.$parent.$refs.route.$refs.infoRoute.getPointFun(this.$store.state.symbolName);
+            this.$parent.$refs.route.$refs.infoRoute.infoC4GetKlineFun(this.$store.state.otherCodeName, "D1"); // 获取K线数据
+            this.$parent.$refs.route.$refs.infoRoute.getStockDetail(this.$store.state.otherCodeName); // 分笔明细
+            this.$parent.$refs.route.$refs.infoRoute.initInfoFun(); // 合约信息初始化
+          }
+        }
       }
       if (this.$store.state.showTface == true) {
-        // 显示的时候调用
+        // 交易显示的时候调用
         this.$parent.$refs.out.getOrderOptionListsFun(); // 调用外盘交易中的函数获取交易所列表
+        this.$parent.$refs.out.getOrderAllDepotInfo(index); // 买卖价格
+        this.$parent.$refs.out.websocketonopen(); // 推送
+        this.$store.commit("isSubAddFun", true); // 切换合约后重新获取实时价格
       }
-      
     },
     addPrepaidSecPriceSubFun() {
       // N秒后市价 减

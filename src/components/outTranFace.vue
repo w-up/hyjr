@@ -3495,21 +3495,21 @@ export default {
     handleCloseCondition() { // 点击空白关闭条件弹窗
       this.isShowRightCondition = false;
     },
-    rightConditionFun(index) { // 右键条件里面的事件
+    rightConditionFun(index) { // 条件单右键里面的事件
       let that = this;
       let userToken = that.$store.state.tokenStr; // 获取token
       that.isShowRightCondition = false; // 点击之后关闭弹窗
       if (index == 1) {
         // 添加条件单
         that.$store.commit("isAddConditionFun");
-        that.$nextTick(()=>{
-          if (that.$store.state.showTface == true) { // 显示的时候调用
-            // that.$parent.$refs.addCondition.getOrderOptionListsFun(); // 调用外盘交易中的函数获取交易所列表
-            that.$parent.$refs.addCondition.getOrderOneInfoFun(that.$store.state.codeName); // 获取选中的合约的信息
-            that.$parent.$refs.addCondition.getOrderTime();
-            that.$parent.$refs.addCondition.getOrderSelectListsFun(); // 调用一下合约列表
-          }
-        });
+        // that.$nextTick(()=>{
+        //   if (that.$store.state.showTface == true) { // 显示的时候调用
+        //     // that.$parent.$refs.addCondition.getOrderOptionListsFun(); // 调用外盘交易中的函数获取交易所列表
+        //     that.$parent.$refs.addCondition.getOrderOneInfoFun(that.$store.state.codeName); // 获取选中的合约的信息
+        //     that.$parent.$refs.addCondition.getOrderTime();
+        //     that.$parent.$refs.addCondition.getOrderSelectListsFun(); // 调用一下合约列表
+        //   }
+        // });
       } else if (index == 2) {
         // 暂停
         if (that.conditionOrderListMark == "") {
@@ -4455,6 +4455,7 @@ export default {
           }
           if (this.$route.path == "/wrap/infoFace/infoFaceChild3") {
             this.$parent.$refs.route.$refs.infoRoute.timeKlineFun(this.$store.state.symbolName); // 调用C3中改变选中的合约名
+            this.$parent.$refs.route.$refs.infoRoute.initInfoFun(); // 合约信息初始化
           }
           if (this.$route.path == "/wrap/infoFace/infoFaceChild4") {
             this.$parent.$refs.route.$refs.infoRoute.getPointFun(this.$store.state.symbolName);
